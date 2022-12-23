@@ -1,0 +1,38 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "Parseable",
+  "id": "parseable-datasource",
+  "logs": true,
+  "info": {
+    "description": "Y",
+    "author": {
+      "name": "Parseable"
+    },
+    "keywords": ["datasource"],
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "routes": [
+    {
+      "path": "/api/v1",
+      "url": "{{ jsonData.url }}",
+      "headers": [
+        {
+          "name": "Authorization",
+          "content": "Basic {{ jsonData.username }}:{{ .secureJsonData.password }}"
+        }
+      ]
+    }
+  ],
+  "dependencies": {
+    "grafanaDependency": "^9.2.5",
+    "plugins": []
+  }
+}
