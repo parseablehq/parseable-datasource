@@ -24,11 +24,11 @@ export class QueryEditor extends PureComponent<Props> {
       <div className="gf-form">
         <FormField
           labelWidth={12}
-          inputWidth={100}
+          inputWidth={500}
           value={queryText || ''}
           onChange={this.onQueryTextChange}
           label="SQL Query"
-          tooltip="Enter the search SQL query here."
+          tooltip="Enter the SQL query"
         />
       </div>
     );
