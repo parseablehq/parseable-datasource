@@ -16,7 +16,7 @@ This data source plugin allows you to query and visualize log data stored in Par
 
 - Push the `Save and Test` button, if there is an error message, check the credentials and connection.
 
-![data source config](./src/img/configuration.png)
+![data source config](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/configuration.png?raw=true)
 
 ## Usage
 
@@ -24,5 +24,5 @@ Once the plugin is configured with correct Parseable server instance. You can st
 
 ## Screenshots
 
-![log explorer](./src/img/logs.png)
-![failure rate](./src/img/dashboard.png)
+![log explorer](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/logs.png?raw=true)
+![failure rate](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/dashboard.png?raw=true)
