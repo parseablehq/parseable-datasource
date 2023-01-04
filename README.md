@@ -1,119 +1,28 @@
-# Grafana data source plugin template
+# Parseable Datasource for Grafana
 
-This template is a starting point for building a Data Source Plugin for Grafana.
+This data source plugin allows you to query and visualize log data stored in Parseable server.
 
-## What are Grafana data source plugins?
+## Pre-requisites
 
-Grafana supports a wide range of data sources, including Prometheus, MySQL, and even Datadog. There’s a good chance you can already visualize metrics from the systems you have set up. In some cases, though, you already have an in-house metrics solution that you’d like to add to your Grafana dashboards. Grafana Data Source Plugins enables integrating such solutions with Grafana.
+[Parseable server](https://github.com/parseablehq/parseable) setup and receiving logs from your application. Read more on [Parseable documentation](https://www.parseable.io/docs/quick-start).
 
-## Getting started
+## Installation
 
-### Frontend
+- Install the plugin using the Grafana CLI, using the command `grafana-cli plugins install parseable-datasource`. Then restart Grafana. Alternatively, you can install the plugin from your Grafana instance (Configuration > Data sources > Add Data source).
 
-1. Install dependencies
+- Add Parseable as a data source at the data source configuration page.
 
-   ```bash
-   yarn install
-   ```
+- Configure the data source specifying URL and port like `https://demo.parseable.io:443`. Parseable supports basic auth currently, so toggle the "Basic Auth" option under "Auth" section and enter the username and password under "Basic Auth Details" section. For Parseable demo server use `parseable` as both, username and password.
 
-2. Build plugin in development mode or run in watch mode
+- Push the `Save and Test` button, if there is an error message, check the credentials and connection.
 
-   ```bash
-   yarn dev
+![data source config](./src/img/configuration.png)
 
-   # or
+## Usage
 
-   yarn watch
-   ```
+Once the plugin is configured with correct Parseable server instance. You can start using it to query logs and visualize them. You can use the query editor to write your own queries.
 
-3. Build plugin in production mode
+## Screenshots
 
-   ```bash
-   yarn build
-   ```
-
-4. Run the tests (using Jest)
-
-   ```bash
-   # Runs the tests and watches for changes
-   yarn test
-   
-   # Exists after running all the tests
-   yarn lint:ci
-   ```
-
-5. Spin up a Grafana instance and run the plugin inside it (using Docker)
-
-   ```bash
-   yarn server
-   ```
-
-6. Run the E2E tests (using Cypress)
-
-   ```bash
-   # Spin up a Grafana instance first that we tests against 
-   yarn server
-   
-   # Start the tests
-   yarn e2e
-   ```
-
-7. Run the linter
-
-   ```bash
-   yarn lint
-   
-   # or
-
-   yarn lint:fix
-   ```
-
-
-
-# Distributing your plugin
-
-When distributing a Grafana plugin either within the community or privately the plugin must be signed so the Grafana application can verify its authenticity. This can be done with the `@grafana/sign-plugin` package.
-
-_Note: It's not necessary to sign a plugin during development. The docker development environment that is scaffolded with `@grafana/create-plugin` caters for running the plugin without a signature._
-
-## Initial steps
-
-Before signing a plugin please read the Grafana [plugin publishing and signing criteria](https://grafana.com/docs/grafana/latest/developers/plugins/publishing-and-signing-criteria/) documentation carefully.
-
-`@grafana/create-plugin` has added the necessary commands and workflows to make signing and distributing a plugin via the grafana plugins catalog as straightforward as possible.
-
-Before signing a plugin for the first time please consult the Grafana [plugin signature levels](https://grafana.com/docs/grafana/latest/developers/plugins/sign-a-plugin/#plugin-signature-levels) documentation to understand the differences between the types of signature level.
-
-1. Create a [Grafana Cloud account](https://grafana.com/signup).
-2. Make sure that the first part of the plugin ID matches the slug of your Grafana Cloud account.
-   - _You can find the plugin ID in the plugin.json file inside your plugin directory. For example, if your account slug is `acmecorp`, you need to prefix the plugin ID with `acmecorp-`._
-3. Create a Grafana Cloud API key with the `PluginPublisher` role.
-4. Keep a record of this API key as it will be required for signing a plugin
-
-## Signing a plugin
-
-### Using Github actions release workflow
-
-If the plugin is using the github actions supplied with `@grafana/create-plugin` signing a plugin is included out of the box. The [release workflow](./.github/workflows/release.yml) can prepare everything to make submitting your plugin to Grafana as easy as possible. Before being able to sign the plugin however a secret needs adding to the Github repository.
-
-1. Please navigate to "settings > secrets > actions" within your repo to create secrets.
-2. Click "New repository secret"
-3. Name the secret "GRAFANA_API_KEY"
-4. Paste your Grafana Cloud API key in the Secret field
-5. Click "Add secret"
-
-#### Push a version tag
-
-To trigger the workflow we need to push a version tag to github. This can be achieved with the following steps:
-
-1. Run `npm version <major|minor|patch>`
-2. Run `git push origin main --follow-tags`
-
-
-## Learn more
-
-Below you can find source code for existing app plugins and other related documentation.
-
-- [Basic data source plugin example](https://github.com/grafana/grafana-plugin-examples/tree/master/examples/datasource-basic#readme)
-- [Plugin.json documentation](https://grafana.com/docs/grafana/latest/developers/plugins/metadata/)
-- [How to sign a plugin?](https://grafana.com/docs/grafana/latest/developers/plugins/sign-a-plugin/)
+![log explorer](./src/img/logs.png)
+![failure rate](./src/img/dashboard.png)

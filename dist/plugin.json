@@ -5,11 +5,11 @@
   "id": "parseable-datasource",
   "logs": true,
   "info": {
-    "description": "Y",
+    "description": "Parseable is a log observability platform that helps you collect, parse, and analyze your logs. This plugin allows you to query your logs in Grafana.",
     "author": {
-      "name": "Parseable"
+      "name": "Parseable Team <hi@parseable.io>"
     },
-    "keywords": ["datasource"],
+    "keywords": ["datasource", "logging", "log observability", "log analytics", "parseable"],
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"
