@@ -1,0 +1,866 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PARSEABLE",
+      "label": "Parseable",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "parseable-datasource",
+      "pluginName": "Parseable"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.3.2"
+    },
+    {
+      "type": "panel",
+      "id": "logs",
+      "name": "Logs",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "parseable-datasource",
+      "name": "Parseable",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "panels": [],
+      "title": "Textual View",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "parseable-datasource",
+        "uid": "${DS_PARSEABLE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "displayMode": "color-text",
+            "filterable": true,
+            "inspect": true
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 87
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 8,
+      "options": {
+        "footer": {
+          "enablePagination": true,
+          "fields": [
+            "status"
+          ],
+          "reducer": [
+            "count"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "queryText": "select * from frontend",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Data",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "parseable-datasource",
+        "uid": "${DS_PARSEABLE}"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 29,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "queryText": "select * from frontend",
+          "refId": "A"
+        }
+      ],
+      "title": "Log View",
+      "transformations": [],
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Graphical View",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "parseable-datasource",
+        "uid": "${DS_PARSEABLE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "",
+            "axisPlacement": "left",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      },
+      "id": 21,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.55,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi",
+          "sort": "asc"
+        },
+        "xField": "datetime",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as Successes from frontend where status ='200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "A"
+        }
+      ],
+      "title": "API Success Rate / Second",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "parseable-datasource",
+        "uid": "${DS_PARSEABLE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "",
+            "axisPlacement": "left",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 29
+      },
+      "id": 30,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.55,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi",
+          "sort": "asc"
+        },
+        "xField": "datetime",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as Successes from frontend where status <> '200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "A"
+        }
+      ],
+      "title": "API Failure Rate / Second",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "parseable-datasource",
+        "uid": "${DS_PARSEABLE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "post_failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "post_successes"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delete_failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "put_failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "get_failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "put_successes"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "get_successes"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delete_successes"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#3274D9",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 37
+      },
+      "id": 27,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.69,
+        "groupWidth": 0.98,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as POST_successes from frontend where method='POST' and status ='200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "hide": false,
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as PUT_successes from frontend where method='PUT' and status ='200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "hide": false,
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as GET_successes from frontend where method='GET' and status ='200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "hide": false,
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as DELETE_successes from frontend where method='DELETE' and status ='200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "D"
+        }
+      ],
+      "title": "API Success Rate / Method / Second",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "parseable-datasource",
+        "uid": "${DS_PARSEABLE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "post_failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "post_successes"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delete_failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "put_failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "get_failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "delete_failures"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 37
+      },
+      "id": 25,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.69,
+        "groupWidth": 0.98,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as POST_failures from frontend where method='POST' and status <>'200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "hide": false,
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as PUT_failures from frontend where method='PUT' and status <>'200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "hide": false,
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as GET_failures from frontend where method='GET' and status <>'200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "parseable-datasource",
+            "uid": "${DS_PARSEABLE}"
+          },
+          "hide": false,
+          "queryText": "select date_trunc('second',CAST(datetime AS Timestamp)) as datetime, count(*) as DELETE_failures from frontend where method='DELETE' and status <>'200' group by date_trunc('second',CAST(datetime AS Timestamp))",
+          "refId": "D"
+        }
+      ],
+      "title": "API Failure Rate / Method / Second",
+      "type": "barchart"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Parseable Demo Data",
+  "uid": "ojonXSp4z",
+  "version": 45,
+  "weekStart": ""
+}

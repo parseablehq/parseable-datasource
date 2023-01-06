@@ -20,8 +20,8 @@
     ],
     "screenshots": [
       {"name": "Query Configuration", "path": "img/configuration.png"},
-      {"name": "Log Explorer", "path": "img/logs.png"},
-      {"name": "Log Dashboard", "path": "img/dashboard.png"}
+      {"name": "Log Explorer", "path": "img/log-view-text.png"},
+      {"name": "Log Dashboard", "path": "img/log-visualisation.png"}
     ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
