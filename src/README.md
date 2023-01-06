@@ -24,5 +24,5 @@ Once the plugin is configured with correct Parseable server instance. You can st
 
 ## Screenshots
 
-![log explorer](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/logs.png?raw=true)
-![failure rate](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/dashboard.png?raw=true)
+![log dashboard](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/log-visualisation.png?raw=true)
+![log text view](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/log-view-text.png?raw=true)
