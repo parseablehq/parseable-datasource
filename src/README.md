@@ -26,7 +26,7 @@ Once the plugin is configured with correct Parseable server instance. You can st
 
 This plugin has a a pre-made dashboard called "Parseable Demo Data". You can find it by navigating to the data sources configuration page, selecting the Parseable data source and clicking on the Dashboards tab.
 
-This dashboard is aimed at visualizing the logs stored in the Parseable demo server. You can use it as a starting point for your own dashboards. To use this dashboard, you will need to configure the data source with the Parseable demo server URL https://demo.parseable.io and credentials parseable, parseable.
+This dashboard is aimed at visualizing the logs stored in the Parseable demo server. You can use it as a starting point for your own dashboards. To use this dashboard, you will need to configure the data source with the Parseable demo server URL `https://demo.parseable.io` and credentials `parseable`, `parseable`.
 
 ## Screenshots
 
