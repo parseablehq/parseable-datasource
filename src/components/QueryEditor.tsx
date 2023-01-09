@@ -1,36 +1,105 @@
-import defaults from 'lodash/defaults';
-
-import React, { ChangeEvent, PureComponent } from 'react';
-import { LegacyForms } from '@grafana/ui';
-import { QueryEditorProps } from '@grafana/data';
+import React, { ComponentType, ChangeEvent, useState } from 'react';
+import { LegacyForms, AsyncSelect, Label, InlineField, InlineFieldRow } from '@grafana/ui';
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { MyDataSourceOptions, MyQuery } from '../types';
 
 const { FormField } = LegacyForms;
 
-type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
+interface Props extends QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions> {
+  payload?: string;
+}
 
-export class QueryEditor extends PureComponent<Props> {
-  onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = this.props;
+export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQuery, query }) => {
+
+  const { queryText } = query;
+  const [stream, setStream] = React.useState<SelectableValue<string | number>>();
+
+  const loadAsyncOptions = React.useCallback(() => {
+    return datasource.listMetrics().then(
+      (result) => {
+        const stream = result.map((data) => ({ label: data.name, value: data.name }));
+        setStream(stream);
+        return stream;
+      },
+      (response) => {
+        setStream({ label: '', value: '' });
+        throw new Error(response.statusText);
+      }
+    );
+  }, [datasource]);
+
+  const [value, setValue] = useState<SelectableValue<string>>();
+  const [schema, setSchema] = React.useState<string | number>();
+
+  const loadSchemaOptions = React.useCallback((value) => {
+    if (value) {
+      return datasource.listSchema(value).then(
+        (result) => {
+          const schema = result.map((data) => (data.name));
+          const schemaToText = schema.join(", ")
+          setSchema(schemaToText);
+          return schema;
+        },
+        (response) => {
+          throw new Error(response.statusText);
+        }
+      );
+    }
+  }, [value]);
+
+  const onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...query, queryText: event.target.value });
   };
 
-  render() {
-    const query = defaults(this.props.query);
-    const { queryText } = query;
+  React.useEffect(() => {
+    const getData = setTimeout(() => {
+      onRunQuery()
+    },
+      2000)
+    return () => clearTimeout(getData)
+  }, [queryText])
 
-    return (
+  React.useEffect(() => {
+    loadSchemaOptions(value)
+  }, [value]);
+
+  return (
+    <>
       <div className="gf-form">
-        <FormField
-          labelWidth={12}
-          inputWidth={500}
-          value={queryText || ''}
-          onChange={this.onQueryTextChange}
-          label="SQL Query"
-          tooltip="Enter the SQL query"
-        />
+        <InlineField>
+          <Label >
+            StreamName:
+            <div style={{ width: 200 + 'px', marginRight: '20px', marginLeft: '20px' }}>
+              <AsyncSelect
+                loadOptions={loadAsyncOptions}
+                defaultOptions
+                value={value}
+                onChange={v => {
+                  setValue(v);
+                }}
+              />
+            </div>
+          </Label>
+        </InlineField>
+
+        <InlineFieldRow>
+          <div>
+            <Label>
+              Schema: {schema}
+            </Label>
+          </div>
+        </InlineFieldRow>
       </div>
-    );
-  }
-}
+
+      <FormField
+        labelWidth={12}
+        inputWidth={100}
+        value={queryText || ''}
+        onChange={onQueryTextChange}
+        label="SQL Query"
+        tooltip="Enter the search SQL query here."
+      />
+    </>
+  );
+};

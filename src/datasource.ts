@@ -1,4 +1,4 @@
-import { getBackendSrv,BackendSrvRequest,FetchResponse } from "@grafana/runtime";
+import { getBackendSrv, BackendSrvRequest, FetchResponse, getTemplateSrv } from "@grafana/runtime";
 
 import {
   DataQueryRequest,
@@ -9,27 +9,36 @@ import {
   DataFrame,
   FieldType,
   guessFieldTypeFromValue,
+  ScopedVars
 } from '@grafana/data';
 import { lastValueFrom, of } from 'rxjs';
-import { MyQuery, MyDataSourceOptions } from './types';
+import { isArray } from 'lodash';
+import {
+  MyQuery,
+  MyDataSourceOptions,
+  StreamConfig,
+  StreamPayloadConfig,
+  QueryEditorMode,
+} from './types';
 import { catchError, map } from 'rxjs/operators';
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   url: string;
   withCredentials: boolean;
   headers: any;
-  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions> ) {
+  defaultEditorMode: QueryEditorMode;
+  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
     this.url = instanceSettings.url === undefined ? '' : instanceSettings.url;
     this.withCredentials = instanceSettings.withCredentials !== undefined;
-    console.log("this", instanceSettings)
+    this.defaultEditorMode = instanceSettings.jsonData?.defaultEditorMode ?? "code"
   }
 
   async doRequest(query: MyQuery) {
     const routePath = '/api/v1'
     const result = await getBackendSrv().datasourceRequest({
       method: "GET",
-      url: this.url + routePath+ '/readiness',
+      url: this.url + routePath + '/readiness',
       params: query,
     })
     return result;
@@ -48,15 +57,15 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const start = range!.from;
     const end = range!.to;
 
-    const calls = options.targets.map(target => { 
-      const request = { 
-        "query":target.queryText, 
-        "startTime":start.toISOString(),
-        "endTime":end.toISOString() 
+    const calls = options.targets.map(target => {
+      const request = {
+        "query": target.queryText,
+        "startTime": start.toISOString(),
+        "endTime": end.toISOString()
       };
       return lastValueFrom(
         this.doFetch<any[]>({
-          url: this.url+'/api/v1/query',
+          url: this.url + '/api/v1/query',
           data: request,
           method: 'POST',
         }).pipe(
@@ -75,7 +84,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return {
       data,
     };
-  }  
+  }
 
   doFetch<T>(options: BackendSrvRequest) {
     options.withCredentials = this.withCredentials;
@@ -84,7 +93,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return getBackendSrv().fetch<T>(options);
   }
 
-    arrayToDataFrame(array: any[]): DataFrame {
+  arrayToDataFrame(array: any[]): DataFrame {
     let dataFrame: MutableDataFrame = new MutableDataFrame();
     if (array.length > 0) {
       const fields = Object.keys(array[0]).map(field => {
@@ -121,12 +130,54 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return dataFrame;
   }
 
+  async listMetrics() {
+    const errorMessageBase = 'Parseable server is not reachable';
+    try {
+      const response = await lastValueFrom(
+        this.doFetch({
+          url: this.url + '/api/v1/logstream',
+          method: 'GET',
+        }).pipe(map((response) => response))
+      );
+      return response.data;
+    } catch (err) {
+      if (typeof err === 'string') {
+        return {
+          status: 'error',
+          message: err,
+        };
+      }
+    }
+  }
+
+  async listSchema(streamname) {
+    const errorMessageBase = 'Parseable server is not reachable';
+    try {
+      const response = await lastValueFrom(
+        this.doFetch({
+          url: this.url + '/api/v1/logstream/' + streamname.value + '/schema',
+          method: 'GET',
+        }).pipe(map((response) => response))
+      );
+      return response.data.fields;
+    } catch (err) {
+      if (typeof err === 'string') {
+        return {
+          status: 'error',
+          message: err,
+        };
+      }
+    }
+  }
+
+
+
   async testDatasource() {
     const errorMessageBase = 'Parseable server is not reachable';
     try {
       const response = await lastValueFrom(
         this.doFetch({
-          url: this.url+'/api/v1/readiness',
+          url: this.url + '/api/v1/readiness',
           method: 'GET',
         }).pipe(map((response) => response))
       );
