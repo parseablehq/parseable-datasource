@@ -1,5 +1,4 @@
-import { getBackendSrv, BackendSrvRequest, FetchResponse, getTemplateSrv } from "@grafana/runtime";
-
+import { getBackendSrv, BackendSrvRequest, FetchResponse } from "@grafana/runtime";
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -9,19 +8,20 @@ import {
   DataFrame,
   FieldType,
   guessFieldTypeFromValue,
-  ScopedVars
 } from '@grafana/data';
 import { lastValueFrom, of } from 'rxjs';
-import { isArray } from 'lodash';
+import { catchError, map } from 'rxjs/operators';
+import { isArray, isNull } from "lodash";
+
 import {
   MyQuery,
   MyDataSourceOptions,
-  StreamConfig,
-  StreamPayloadConfig,
   QueryEditorMode,
+  StreamName,
+  StreamList,
+  //Fields,
+  ListSchemaResponse
 } from './types';
-import { catchError, map } from 'rxjs/operators';
-
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   url: string;
   withCredentials: boolean;
@@ -130,47 +130,49 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return dataFrame;
   }
 
-  async listMetrics() {
-    const errorMessageBase = 'Parseable server is not reachable';
-    try {
-      const response = await lastValueFrom(
-        this.doFetch({
-          url: this.url + '/api/v1/logstream',
-          method: 'GET',
-        }).pipe(map((response) => response))
-      );
-      return response.data;
-    } catch (err) {
-      if (typeof err === 'string') {
-        return {
-          status: 'error',
-          message: err,
-        };
-      }
-    }
+  async listStreams(): Promise<StreamList[]> {
+    return lastValueFrom(
+      this.doFetch({
+        url: this.url + '/api/v1/logstream',
+        method: 'GET',
+      }).pipe(
+        map((response) =>
+          isArray(response.data)
+            ? response.data
+            : []
+        ),
+        catchError((err) => {
+          console.error(err);
+
+          return of([]);
+        }))
+    );
   }
 
-  async listSchema(streamname) {
-    const errorMessageBase = 'Parseable server is not reachable';
-    try {
-      const response = await lastValueFrom(
+  async listSchema(streamname: StreamName): Promise<ListSchemaResponse> {
+    if (streamname) {
+      return lastValueFrom(
         this.doFetch({
           url: this.url + '/api/v1/logstream/' + streamname.value + '/schema',
           method: 'GET',
-        }).pipe(map((response) => response))
-      );
-      return response.data.fields;
-    } catch (err) {
-      if (typeof err === 'string') {
-        return {
-          status: 'error',
-          message: err,
-        };
-      }
+        }).pipe(
+          map((response) =>
+            (typeof response.data === 'object' && !isNull(response.data))
+              ? response.data
+              : {}
+          ),
+          catchError((err) => {
+            console.error(err);
+            return of({
+              status: 'error',
+              message: err.statusText
+            })
+
+          }))
+      )
     }
+    return { fields: [] }
   }
-
-
 
   async testDatasource() {
     const errorMessageBase = 'Parseable server is not reachable';

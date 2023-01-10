@@ -2,7 +2,7 @@ import React, { ComponentType, ChangeEvent, useState } from 'react';
 import { LegacyForms, AsyncSelect, Label, InlineField, InlineFieldRow } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
-import { MyDataSourceOptions, MyQuery } from '../types';
+import { Fields, MyDataSourceOptions, MyQuery } from '../types';
 
 const { FormField } = LegacyForms;
 
@@ -13,32 +13,35 @@ interface Props extends QueryEditorProps<DataSource, MyQuery, MyDataSourceOption
 export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQuery, query }) => {
 
   const { queryText } = query;
-  const [stream, setStream] = React.useState<SelectableValue<string | number>>();
+  //const [stream, setStream] = React.useState<SelectableValue<string | number>>();
 
   const loadAsyncOptions = React.useCallback(() => {
-    return datasource.listMetrics().then(
+    return datasource.listStreams().then(
       (result) => {
         const stream = result.map((data) => ({ label: data.name, value: data.name }));
-        setStream(stream);
         return stream;
       },
       (response) => {
-        setStream({ label: '', value: '' });
+        //setStream({ label: '', value: '' });
         throw new Error(response.statusText);
       }
     );
   }, [datasource]);
 
   const [value, setValue] = useState<SelectableValue<string>>();
-  const [schema, setSchema] = React.useState<string | number>();
+  const [schema = '', setSchema] = React.useState<string | number>();
+  //const [fielder, setFielder] = React.useState<string | number>();
 
   const loadSchemaOptions = React.useCallback((value) => {
     if (value) {
       return datasource.listSchema(value).then(
         (result) => {
-          const schema = result.map((data) => (data.name));
-          const schemaToText = schema.join(", ")
-          setSchema(schemaToText);
+          if (result.fields) {
+            const schema = result.fields.map((data: Fields) => (data.name));
+            const schemaToText = schema.join(", ")
+            setSchema(schemaToText);
+            return schema;
+          }
           return schema;
         },
         (response) => {
@@ -46,7 +49,8 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
         }
       );
     }
-  }, [value]);
+    return '';
+  }, [datasource, schema]);
 
   const onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...query, queryText: event.target.value });
@@ -58,11 +62,11 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
     },
       2000)
     return () => clearTimeout(getData)
-  }, [queryText])
+  }, [onRunQuery, queryText])
 
   React.useEffect(() => {
     loadSchemaOptions(value)
-  }, [value]);
+  }, [loadSchemaOptions, value]);
 
   return (
     <>

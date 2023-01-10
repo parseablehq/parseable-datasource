@@ -31,13 +31,6 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
 export interface MySecureJsonData {
   password?: string;
 }
-
-declare module 'react' {
-  interface DOMAttributes<T> {
-    css?: InterpolationWithTheme<any>;
-  }
-}
-
 export interface StreamPayloadConfig {
   width?: number;
   placeholder?: string;
@@ -53,6 +46,32 @@ export interface StreamConfig {
   label?: string;
   text?: string;
   payloads?: StreamPayloadConfig[];
+}
+
+export interface StreamName {
+  label: String | Number;
+  value: String | Number;
+}
+
+export interface ListSchemaResponse {
+  fields?: [] | undefined;
+  status?: string;
+  message?: string;
+}
+
+export interface Fields {
+  name?: string;
+  data_type?: "Utf8";
+  nullable?: boolean;
+  dict_id?: number;
+  dict_is_ordered?: boolean;
+}
+
+export interface Schema {
+  schema?: string[];
+}
+export interface StreamList {
+  name?: string;
 }
 
 export type QueryEditorMode = "code" | "builder";
