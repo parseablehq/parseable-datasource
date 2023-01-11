@@ -20,7 +20,8 @@ import {
   StreamName,
   StreamList,
   //Fields,
-  ListSchemaResponse
+  StreamSchemaResponse,
+  StreamStatsResponse
 } from './types';
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   url: string;
@@ -149,7 +150,32 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     );
   }
 
-  async listSchema(streamname: StreamName): Promise<ListSchemaResponse> {
+  async streamStats(streamname: StreamName): Promise<StreamStatsResponse> {
+    if (streamname) {
+      return lastValueFrom(
+        this.doFetch({
+          url: this.url + '/api/v1/logstream/' + streamname.value + '/stats',
+          method: 'GET',
+        }).pipe(
+          map((response) =>
+            (typeof response.data === 'object' && !isNull(response.data))
+              ? response.data
+              : {}
+          ),
+          catchError((err) => {
+            console.error(err);
+            return of({
+              status: 'error',
+              message: err.statusText
+            })
+
+          }))
+      )
+    }
+    return {}
+  }
+
+  async streamSchema(streamname: StreamName): Promise<StreamSchemaResponse> {
     if (streamname) {
       return lastValueFrom(
         this.doFetch({

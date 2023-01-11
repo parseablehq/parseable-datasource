@@ -5,7 +5,7 @@
   "id": "parseable-datasource",
   "logs": true,
   "info": {
-    "description": "Parseable is a log observability platform that helps you collect, parse, and analyze your logs. This plugin allows you to query your logs in Grafana.",
+    "description": "Parseable is a logging platform that helps you collect, parse, and analyze your logs. This plugin allows you to visualize your Parseable logs in Grafana.",
     "author": {
       "name": "Parseable Team <hi@parseable.io>"
     },
@@ -24,7 +24,7 @@
       {"name": "Log Dashboard", "path": "img/log-visualisation.png"}
     ],
     "version": "1.0.0",
-    "updated": "2023-01-10"
+    "updated": "2023-01-11"
   },
   "routes": [
     {

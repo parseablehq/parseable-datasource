@@ -2,7 +2,7 @@ import React, { ComponentType, ChangeEvent, useState } from 'react';
 import { LegacyForms, AsyncSelect, Label, InlineField, InlineFieldRow } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
-import { Fields, MyDataSourceOptions, MyQuery } from '../types';
+import { SchemaFields, MyDataSourceOptions, MyQuery } from '../types';
 
 const { FormField } = LegacyForms;
 
@@ -30,14 +30,18 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
 
   const [value, setValue] = useState<SelectableValue<string>>();
   const [schema = '', setSchema] = React.useState<string | number>();
+  const [count = '', setEventCount] = React.useState<string | number>();
+  const [jsonsize = '', setJsonSize] = React.useState<string | number>();
+  const [parquetsize = '', setParquetSize] = React.useState<string | number>();
+  const [streamname = '', setStreamName] = React.useState<string | number>();
   //const [fielder, setFielder] = React.useState<string | number>();
 
-  const loadSchemaOptions = React.useCallback((value) => {
+  const loadStreamSchema = React.useCallback((value) => {
     if (value) {
-      return datasource.listSchema(value).then(
+      return datasource.streamSchema(value).then(
         (result) => {
           if (result.fields) {
-            const schema = result.fields.map((data: Fields) => (data.name));
+            const schema = result.fields.map((data: SchemaFields) => (data.name));
             const schemaToText = schema.join(", ")
             setSchema(schemaToText);
             return schema;
@@ -52,6 +56,31 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
     return '';
   }, [datasource, schema]);
 
+  const loadStreamStats = React.useCallback((value) => {
+    if (value) {
+      return datasource.streamStats(value).then(
+        (result) => {
+          if (result.ingestion) {
+            const count = result.ingestion.count;
+            const jsonsize = result.ingestion.size;
+            const parquetsize = result.storage?.size;
+            const streamname = result.stream;
+            setJsonSize(jsonsize);
+            setParquetSize(parquetsize);
+            setStreamName(streamname);
+            setEventCount(count);
+            return count;
+          }
+          return count;
+        },
+        (response) => {
+          throw new Error(response.statusText);
+        }
+      );
+    }
+    return '';
+  }, [datasource, count]);
+
   const onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...query, queryText: event.target.value });
   };
@@ -65,15 +94,21 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   }, [onRunQuery, queryText])
 
   React.useEffect(() => {
-    loadSchemaOptions(value)
-  }, [loadSchemaOptions, value]);
+    loadStreamSchema(value)
+  }, [loadStreamSchema, value]);
+
+  React.useEffect(() => {
+    loadStreamStats(value)
+  }, [loadStreamStats, value]);
 
   return (
     <>
       <div className="gf-form">
         <InlineField>
           <Label >
-            StreamName:
+            <div style={{ width: 'fit-content', color: 'blue' }}>
+            Select a log stream:
+            </div>
             <div style={{ width: 200 + 'px', marginRight: '20px', marginLeft: '20px' }}>
               <AsyncSelect
                 loadOptions={loadAsyncOptions}
@@ -89,8 +124,42 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
 
         <InlineFieldRow>
           <div>
+          <Label>
+              <div style={{ width: 'fit-content', textAlign: 'center', color: 'blue'}}>
+                Stream {streamname} details
+              </div>
+            </Label>
             <Label>
-              Schema: {schema}
+              <div style={{ width: 'fit-content', color: 'blue' }}>
+                Columns: 
+              </div>
+              <div style={{ width: 'fit-content' }}>
+                { schema}
+              </div>
+            </Label>
+            <Label>
+              <div style={{ width: 'fit-content', color: 'blue' }}>
+                Total events ingested:             
+              </div>
+              <div style={{ width: 'fit-content' }}>
+                { count}
+              </div>
+            </Label>
+            <Label>
+              <div style={{ width: 'fit-content', color: 'blue' }}>
+                Total ingested data size:             
+              </div>
+              <div style={{ width: 'fit-content' }}>
+                { jsonsize}
+              </div>
+            </Label>
+            <Label>
+              <div style={{ width: 'fit-content', color: 'blue' }}>
+                Total compressed data stored:             
+              </div>
+              <div style={{ width: 'fit-content' }}>
+                { parquetsize}
+              </div>
             </Label>
           </div>
         </InlineFieldRow>
@@ -102,7 +171,7 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
         value={queryText || ''}
         onChange={onQueryTextChange}
         label="SQL Query"
-        tooltip="Enter the search SQL query here."
+        tooltip="Enter the search SQL query here (use column names as displayed above)"
       />
     </>
   );
