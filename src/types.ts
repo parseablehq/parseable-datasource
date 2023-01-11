@@ -53,18 +53,38 @@ export interface StreamName {
   value: String | Number;
 }
 
-export interface ListSchemaResponse {
+export interface StreamSchemaResponse {
   fields?: [] | undefined;
   status?: string;
   message?: string;
 }
 
-export interface Fields {
+export interface StreamStatsResponse {
+  ingestion?: Ingestion;
+  storage?: Storage;
+  time?: string;
+  stream?: string;
+  status?: string;
+  message?: string;
+}
+
+export interface SchemaFields {
   name?: string;
   data_type?: "Utf8";
   nullable?: boolean;
   dict_id?: number;
   dict_is_ordered?: boolean;
+}
+
+export interface Ingestion {
+  count?: number;
+  format?: string;
+  size?: string;
+}
+
+export interface Storage {
+  format?: string;
+  size?: string;
 }
 
 export interface Schema {
