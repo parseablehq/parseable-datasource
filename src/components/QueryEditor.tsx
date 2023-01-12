@@ -1,6 +1,6 @@
 import React, { ComponentType, ChangeEvent, useState } from 'react';
-import { LegacyForms, AsyncSelect, Label, InlineField, InlineFieldRow } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { LegacyForms, AsyncSelect, InlineField, InlineFieldRow, SeriesTable, Label} from '@grafana/ui';
+import { QueryEditorProps, SelectableValue, GraphSeriesValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { SchemaFields, MyDataSourceOptions, MyQuery } from '../types';
 
@@ -30,10 +30,11 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
 
   const [value, setValue] = useState<SelectableValue<string>>();
   const [schema = '', setSchema] = React.useState<string | number>();
-  const [count = '', setEventCount] = React.useState<string | number>();
+  const [count = '', setEventCount] = React.useState<string | GraphSeriesValue>();
   const [jsonsize = '', setJsonSize] = React.useState<string | number>();
   const [parquetsize = '', setParquetSize] = React.useState<string | number>();
   const [streamname = '', setStreamName] = React.useState<string | number>();
+  const [time = '', setTime] = React.useState<string | number>();
   //const [fielder, setFielder] = React.useState<string | number>();
 
   const loadStreamSchema = React.useCallback((value) => {
@@ -65,10 +66,12 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
             const jsonsize = result.ingestion.size;
             const parquetsize = result.storage?.size;
             const streamname = result.stream;
+            const time = result.time;
             setJsonSize(jsonsize);
             setParquetSize(parquetsize);
             setStreamName(streamname);
             setEventCount(count);
+            setTime(time);
             return count;
           }
           return count;
@@ -103,75 +106,80 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
 
   return (
     <>
-      <div className="gf-form">
+      <InlineFieldRow>
         <InlineField>
-          <Label >
-            <div style={{ width: 'fit-content', color: 'blue' }}>
-            Select a log stream:
-            </div>
-            <div style={{ width: 200 + 'px', marginRight: '20px', marginLeft: '20px' }}>
-              <AsyncSelect
-                loadOptions={loadAsyncOptions}
-                defaultOptions
-                value={value}
-                onChange={v => {
-                  setValue(v);
-                }}
-              />
-            </div>
-          </Label>
-        </InlineField>
-
-        <InlineFieldRow>
-          <div>
           <Label>
-              <div style={{ width: 'fit-content', textAlign: 'center', color: 'blue'}}>
-                Stream {streamname} details
-              </div>
-            </Label>
-            <Label>
-              <div style={{ width: 'fit-content', color: 'blue' }}>
-                Columns: 
-              </div>
-              <div style={{ width: 'fit-content' }}>
-                { schema}
-              </div>
-            </Label>
-            <Label>
-              <div style={{ width: 'fit-content', color: 'blue' }}>
-                Total events ingested:             
-              </div>
-              <div style={{ width: 'fit-content' }}>
-                { count}
-              </div>
-            </Label>
-            <Label>
-              <div style={{ width: 'fit-content', color: 'blue' }}>
-                Total ingested data size:             
-              </div>
-              <div style={{ width: 'fit-content' }}>
-                { jsonsize}
-              </div>
-            </Label>
-            <Label>
-              <div style={{ width: 'fit-content', color: 'blue' }}>
-                Total compressed data stored:             
-              </div>
-              <div style={{ width: 'fit-content' }}>
-                { parquetsize}
-              </div>
-            </Label>
-          </div>
-        </InlineFieldRow>
-      </div>
+            Select a log stream:
+          </Label>   
+        </InlineField>
+        <InlineField>          
+          <AsyncSelect
+            loadOptions={loadAsyncOptions}
+            defaultOptions
+            value={value}
+            onChange={v => {
+              setValue(v);
+            }}/>
+        </InlineField>
+        {/* <InlineField>
+          <TextArea
+            invalid={false}
+            placeholder='Select a log stream (above) to view its columns'
+            rows={2}
+            cols={200}
+            disabled={true}
+            value={schema}/>
+        </InlineField> */}
+      </InlineFieldRow>
 
+      <InlineFieldRow>
+      <InlineField>
+        <SeriesTable 
+          series={[
+              {
+                color: '#299c46',
+                isActive: true,
+                label: 'Stream name',
+                value: streamname
+              },
+              {
+                color: '#299c46',
+                isActive: false,
+                label: 'Column names',
+                value: schema
+              },
+              {
+                color: '#299c46',
+                isActive: false,
+                label: 'Total ingested event count',
+                value: count
+              },
+              {
+                color: '#299c46',
+                isActive: false,
+                label: 'Total ingested json size',
+                value: jsonsize
+              },
+              {
+                color: '#299c46',
+                isActive: false,
+                label: 'Total stored data size',
+                value: parquetsize
+              }
+            ]}
+            timestamp={time}
+          />
+          </InlineField>
+        </InlineFieldRow>
+
+      <br></br>
       <FormField
         labelWidth={12}
         inputWidth={100}
         value={queryText || ''}
         onChange={onQueryTextChange}
         label="SQL Query"
-        tooltip="Enter the search SQL query here (use column names as displayed above)"
+        tooltip="Enter the SQL query here (use column names as above)"
       />
     </>
   );
