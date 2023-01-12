@@ -30,5 +30,6 @@ This dashboard is aimed at visualizing the logs stored in the Parseable demo ser
 
 ## Screenshots
 
+![query editor](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/query-editor.png?raw=true)
 ![log dashboard](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/log-visualisation.png?raw=true)
 ![log text view](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/log-view-text.png?raw=true)
