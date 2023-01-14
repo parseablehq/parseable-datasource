@@ -6,6 +6,7 @@ import {
   DataSourceInstanceSettings,
   MutableDataFrame,
   DataFrame,
+  FieldType,
   guessFieldTypeFromValue,
 } from '@grafana/data';
 import { lastValueFrom, of } from 'rxjs';
@@ -100,28 +101,35 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         return { name: field, type: guessFieldTypeFromValue(array[0][field]) };
       });
 
-      // let timeFieldFound = false;
-      // for (const field of fields) {
-      //   // Check for p_timestamp first
-      //   // because if it is present we want to use this field
-      //   // as we know the format (ISO8601)
-      //   if (field.name.toLowerCase() === 'p_timestamp') {
-      //     field.type = FieldType.time;
-      //     timeFieldFound = true;
-      //     break;
-      //   }
-      // }
-      // // fallback to other possible time fields
-      // // if p_timestamp is not present
-      // if (!timeFieldFound) {  
-      //   for (const field of fields) {
-      //     if (field.name.toLowerCase() === 'time' || 'datetime' || 'timestamp' || 'date') {
-      //       field.type = FieldType.time;
-      //       break;
-      //     }
-      //   }
-      // }
+      let timeFieldFound = false;
+      for (const field of fields) {
+        // Check for p_timestamp first
+        // because if it is present we want to use this field
+        // as we know the format (ISO8601)
+        if (field.name.toLowerCase() === 'p_timestamp') {
+          field.type = FieldType.time;
+          timeFieldFound = true;
+          break;
+        }
+      }
+      // fallback to other possible time fields
+      // if p_timestamp is not present
+      if (!timeFieldFound) {  
+        for (const field of fields) {
+          if (field.name.toLowerCase() === 'time') {
+            field.type = FieldType.time;
+          } else if (field.name.toLowerCase() === 'datetime') {
+            field.type = FieldType.time;
+          } else if (field.name.toLowerCase() === 'timestamp') {
+            field.type = FieldType.time;
+          } else if (field.name.toLowerCase() === 'date') {
+            field.type = FieldType.time;
+          }
+        }
+      }
 
+
+      console.log(fields);
       dataFrame = new MutableDataFrame({ fields });
       array.forEach((row, index) => {
         dataFrame.appendRow(Object.values(row));
