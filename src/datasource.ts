@@ -74,7 +74,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             return this.arrayToDataFrame(response.data);
           }),
           catchError((err) => {
-            console.error(err);
             return of({ data: [] });
           })
         )
@@ -128,8 +127,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         }
       }
 
-
-      console.log(fields);
       dataFrame = new MutableDataFrame({ fields });
       array.forEach((row, index) => {
         dataFrame.appendRow(Object.values(row));
@@ -150,8 +147,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             : []
         ),
         catchError((err) => {
-          console.error(err);
-
           return of([]);
         }))
     );
@@ -170,7 +165,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
               : {}
           ),
           catchError((err) => {
-            console.error(err);
             return of({
               status: 'error',
               message: err.statusText
@@ -195,7 +189,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
               : {}
           ),
           catchError((err) => {
-            console.error(err);
             return of({
               status: 'error',
               message: err.statusText
