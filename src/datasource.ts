@@ -64,7 +64,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         "query": target.queryText,
         "startTime": start.toISOString(),
         "endTime": end.toISOString(),
-        "fill_null": true
+        "send_null": true
       };
       return lastValueFrom(
         this.doFetch<any[]>({
