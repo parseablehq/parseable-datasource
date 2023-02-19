@@ -1,6 +1,6 @@
 {
   "name": "parseable",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Parseable is a logging platform that helps you collect, parse, and analyze your logs. This plugin allows you to visualize your Parseable logs in Grafana.",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
