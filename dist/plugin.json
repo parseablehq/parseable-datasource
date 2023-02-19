@@ -23,7 +23,7 @@
       {"name": "Log Explorer", "path": "img/log-view-text.png"},
       {"name": "Log Dashboard", "path": "img/log-visualisation.png"}
     ],
-    "version": "1.0.0",
+    "version": "1.0.1",
     "updated": "2023-02-19"
   },
   "routes": [
