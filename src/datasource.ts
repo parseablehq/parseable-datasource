@@ -4,10 +4,11 @@ import {
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
-  MutableDataFrame,
-  DataFrame,
-  FieldType,
-  guessFieldTypeFromValue,
+  // MutableDataFrame,
+  // DataFrame,
+  toDataFrame,
+  // FieldType,
+  // guessFieldTypeFromValue,
 } from '@grafana/data';
 import { lastValueFrom, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -62,7 +63,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       const request = {
         "query": target.queryText,
         "startTime": start.toISOString(),
-        "endTime": end.toISOString()
+        "endTime": end.toISOString(),
+        "send_null": true
       };
       return lastValueFrom(
         this.doFetch<any[]>({
@@ -71,7 +73,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           method: 'POST',
         }).pipe(
           map((response) => {
-            return this.arrayToDataFrame(response.data);
+            return toDataFrame(response.data);
           }),
           catchError((err) => {
             return of({ data: [] });
@@ -93,47 +95,48 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return getBackendSrv().fetch<T>(options);
   }
 
-  arrayToDataFrame(array: any[]): DataFrame {
-    let dataFrame: MutableDataFrame = new MutableDataFrame();
-    if (array.length > 0) {
-      const fields = Object.keys(array[0]).map(field => {
-        return { name: field, type: guessFieldTypeFromValue(array[0][field]) };
-      });
+  // arrayToDataFrame(array: any[]): DataFrame {
+  //   let dataFrame: MutableDataFrame = new MutableDataFrame();
+  //   if (array.length > 0) {
+  //     const fields = Object.keys(array[0]).map(field => {
+  //       return { name: field, type: guessFieldTypeFromValue(array[0][field]) };
+  //     });
 
-      let timeFieldFound = false;
-      for (const field of fields) {
-        // Check for p_timestamp first
-        // because if it is present we want to use this field
-        // as we know the format (ISO8601)
-        if (field.name.toLowerCase() === 'p_timestamp') {
-          field.type = FieldType.time;
-          timeFieldFound = true;
-          break;
-        }
-      }
-      // fallback to other possible time fields
-      // if p_timestamp is not present
-      if (!timeFieldFound) {  
-        for (const field of fields) {
-          if (field.name.toLowerCase() === 'time') {
-            field.type = FieldType.time;
-          } else if (field.name.toLowerCase() === 'datetime') {
-            field.type = FieldType.time;
-          } else if (field.name.toLowerCase() === 'timestamp') {
-            field.type = FieldType.time;
-          } else if (field.name.toLowerCase() === 'date') {
-            field.type = FieldType.time;
-          }
-        }
-      }
+  //     toDataFrame(array);
+  //     let timeFieldFound = false;
+  //     for (const field of fields) {
+  //       // Check for p_timestamp first
+  //       // because if it is present we want to use this field
+  //       // as we know the format (ISO8601)
+  //       if (field.name.toLowerCase() === 'p_timestamp') {
+  //         field.type = FieldType.time;
+  //         timeFieldFound = true;
+  //         break;
+  //       }
+  //     }
+  //     // fallback to other possible time fields
+  //     // if p_timestamp is not present
+  //     if (!timeFieldFound) {  
+  //       for (const field of fields) {
+  //         if (field.name.toLowerCase() === 'time') {
+  //           field.type = FieldType.time;
+  //         } else if (field.name.toLowerCase() === 'datetime') {
+  //           field.type = FieldType.time;
+  //         } else if (field.name.toLowerCase() === 'timestamp') {
+  //           field.type = FieldType.time;
+  //         } else if (field.name.toLowerCase() === 'date') {
+  //           field.type = FieldType.time;
+  //         }
+  //       }
+  //     }
 
-      dataFrame = new MutableDataFrame({ fields });
-      array.forEach((row, index) => {
-        dataFrame.appendRow(Object.values(row));
-      });
-    }
-    return dataFrame;
-  }
+  //     dataFrame = new MutableDataFrame({ fields });
+  //     array.forEach((row, index) => {
+  //       dataFrame.appendRow(Object.values(row));
+  //     });
+  //   }
+  //   return dataFrame;
+  // }
 
   async listStreams(): Promise<StreamList[]> {
     return lastValueFrom(
