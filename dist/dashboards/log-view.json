@@ -31,9 +31,9 @@
     },
     {
       "type": "datasource",
-      "id": "parseable-datasource",
+      "id": "parseable-parseable-datasource",
       "name": "Parseable",
-      "version": "1.0.1"
+      "version": "1.0.2"
     },
     {
       "type": "panel",
