@@ -4,8 +4,9 @@
   "name": "Parseable",
   "id": "parseable-parseable-datasource",
   "logs": true,
+  "metrics": true,
   "info": {
-    "description": "Parseable is a logging platform that helps you collect, parse, and analyze your logs. This plugin allows you to visualize your Parseable logs in Grafana.",
+    "description":  "Parseable is an open source, Kubernetes native, log storage and observability platform. This plugin allows you to visualize your Parseable logs in Grafana.",
     "author": {
       "name": "Parseable Team <hi@parseable.io>"
     },
