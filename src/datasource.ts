@@ -4,7 +4,10 @@ import {
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
-  toDataFrame,
+  MutableDataFrame,
+  DataFrame,
+  FieldType,
+  guessFieldTypeFromValue,
 } from '@grafana/data';
 import { lastValueFrom, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -68,7 +71,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           method: 'POST',
         }).pipe(
           map((response) => {
-            return toDataFrame(response.data);
+            return this.arrayToDataFrame(response.data);
           }),
           catchError((err) => {
             return of({ data: [] });
@@ -81,6 +84,31 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return {
       data,
     };
+  }
+
+  arrayToDataFrame(array: any[]): DataFrame {
+    let dataFrame: MutableDataFrame = new MutableDataFrame();
+
+    if (array.length > 0) {
+      const fields = Object.keys(array[0]).map(field => {
+        return { name: field, type: guessFieldTypeFromValue(array[0][field]) };
+      });
+      for (const field of fields) {
+        // p_timestamp is always a time field present in the log
+        // stream as server adds it to the log
+        if (field.name.toLowerCase() === 'p_timestamp') {
+          field.type = FieldType.time;
+          break;
+        }
+      }
+      dataFrame = new MutableDataFrame({ fields });
+    }
+
+    array.forEach((row) => {
+      dataFrame.appendRow(Object.values(row));
+    });
+
+    return dataFrame;
   }
 
   doFetch<T>(options: BackendSrvRequest) {
