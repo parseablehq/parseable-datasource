@@ -9,13 +9,13 @@ Hash: SHA512
   "signedByOrgName": "parseable",
   "plugin": "parseable-parseable-datasource",
   "version": "1.0.2",
-  "time": 1677758691010,
+  "time": 1678091287733,
   "keyId": "7e4d0c6a708866e7",
   "files": {
     "LICENSE": "20b067f86de375aae6db0f283ab2e65de24d537733b89bd58432c101259d84cf",
     "CHANGELOG.md": "ba613d6f914b27dce9ace4d8c0cb074273c9eb6c536d8e7ac24c5ce6ae941fd0",
-    "module.js.map": "528461b3e766c887e2a6800c1276bee7801224beb1feb497f323913b0a32163f",
-    "plugin.json": "43b0538abbf9a312a5d212f11236a2cb6dc61f1f248c67838ee87cbd0a73e5d7",
+    "module.js.map": "98ca780abf736bc47e7fbf2e5b3e534fca3acb7899bd6769f99fdff694477dc1",
+    "plugin.json": "9aeb4b12dc39425b139e9818c0b9f4c30314de6387bf5c8802deb7e36eed6a57",
     "README.md": "030a05e0d49d3746ef272d53c99936e3b98e3219a1cac96ca1df48ddee475934",
     "img/configuration.png": "c545a51bcc88809b2b4f87aac517a7d27ad61281344b0485c9826370b915b4d8",
     "img/log-view-text.png": "8c6555af9c391cb1a8368c79b9bcc7386887beeea061e3483b0e020feec9d73d",
@@ -38,10 +38,10 @@ Hash: SHA512
 Version: OpenPGP.js v4.10.10
 Comment: https://openpgpjs.org
 
-wrgEARMKAAYFAmQAkOMAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
-cIhm5/XKAgdPQ1Nxylk8UlM/6cn/51cRH86D24N2LUTOTIvg9JIj02RcQ1Nz
-UpcZZ1kirEzB9LFrqLlZtTd1F5AbZZYdK1z1pwIJAYLnsOX5TA4mi0VrS0AS
-3I6IIrmywu2HxeMR0NjBYrGHnrgIB/SFwIKmV0zipaU1UNApomVcNdrS8MBg
-SS2x0S9F
-=LKAR
+wrkEARMKAAYFAmQFpBcAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm501IAgkB1WA0MsZjjYjtnXs7zy1JWvJ4jz79wCupBo3Q4bW6oJu50ArI
+uxDUCnCN8KxlGHFNiKSQeFlPdsgm9GNjKhgbf6MCCQFf7Cz902ksGnQSHlnA
+KmXHsXRNJYsI165Y9pJA5jQUQfDf71br0nPoggUtHU2cKpJvUrE9amF2zoHn
+hcEDcrB/Gw==
+=JuLg
 -----END PGP SIGNATURE-----
