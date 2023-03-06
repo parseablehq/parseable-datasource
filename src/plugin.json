@@ -8,7 +8,8 @@
   "info": {
     "description":  "Parseable is an open source, Kubernetes native, log storage and observability platform. This plugin allows you to visualize your Parseable logs in Grafana.",
     "author": {
-      "name": "Parseable Team <hi@parseable.io>"
+      "name": "Parseable Team",
+      "url": "https://parseable.io"
     },
     "keywords": ["datasource", "logging", "log observability", "log analytics", "parseable"],
     "logos": {
@@ -40,7 +41,7 @@
     }
   ],
   "dependencies": {
-    "grafanaDependency": "^9.2.5",
+    "grafanaDependency": "^9.0.0",
     "plugins": []
   }
 }
