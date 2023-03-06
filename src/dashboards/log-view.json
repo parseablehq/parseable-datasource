@@ -5,7 +5,7 @@
       "label": "Parseable",
       "description": "",
       "type": "datasource",
-      "pluginId": "parseable-datasource",
+      "pluginId": "parseable-parseable-datasource",
       "pluginName": "Parseable"
     }
   ],
