@@ -91,16 +91,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     if (array.length > 0) {
       const fields = Object.keys(array[0]).map(field => {
-        return { name: field, type: guessFieldTypeFromValue(array[0][field]) };
-      });
-      for (const field of fields) {
+        let fieldType = guessFieldTypeFromValue(array[0][field])
         // p_timestamp is always a time field present in the log
-        // stream as server adds it to the log
-        if (field.name.toLowerCase() === 'p_timestamp') {
-          field.type = FieldType.time;
-          break;
+        // stream as parseable adds it to the log event
+        if (field.toLowerCase() === 'p_timestamp') {
+          fieldType = FieldType.time;
         }
-      }
+        return { name: field, type: fieldType};
+      });
       dataFrame = new MutableDataFrame({ fields });
     }
 

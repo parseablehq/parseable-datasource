@@ -9,13 +9,13 @@ Hash: SHA512
   "signedByOrgName": "parseable",
   "plugin": "parseable-parseable-datasource",
   "version": "1.0.2",
-  "time": 1678116427014,
+  "time": 1678169515198,
   "keyId": "7e4d0c6a708866e7",
   "files": {
     "LICENSE": "20b067f86de375aae6db0f283ab2e65de24d537733b89bd58432c101259d84cf",
     "CHANGELOG.md": "ba613d6f914b27dce9ace4d8c0cb074273c9eb6c536d8e7ac24c5ce6ae941fd0",
-    "module.js.map": "7189edd1ce6145446698271b0a58dfc3f14444d1e3ffe3ea885e07ca1620af8a",
-    "plugin.json": "9aeb4b12dc39425b139e9818c0b9f4c30314de6387bf5c8802deb7e36eed6a57",
+    "module.js.map": "c3eb00d2db427c37d1a8dbd72c46a1f91a16817cce31e10c8c1e0d12b06e2845",
+    "plugin.json": "f8966d9ecd731dc904e033d179218965fea4dab8a9483a28ce33f857d89f105c",
     "README.md": "030a05e0d49d3746ef272d53c99936e3b98e3219a1cac96ca1df48ddee475934",
     "img/configuration.png": "c545a51bcc88809b2b4f87aac517a7d27ad61281344b0485c9826370b915b4d8",
     "img/log-view-text.png": "8c6555af9c391cb1a8368c79b9bcc7386887beeea061e3483b0e020feec9d73d",
@@ -30,7 +30,7 @@ Hash: SHA512
     "stories/assets/code-brackets.svg": "9ef6443ebd43351be1a6edbab492003b84f2e30c8f80207ec8c4138fa440f7f4",
     "stories/assets/flow.svg": "275142c67bb630246cbdfb0fc3493f17dd695544777ec8da852dbbe94976d323",
     "stories/assets/repo.svg": "fb4ece472009833a03b9f1fbc775f13a010d9432cae3844e8b05710ba028100d",
-    "module.js": "08c7db3293d45747bf8aa5c99a3b6bb9e6a12d48f358b4e034c60ec3f2381f7f",
+    "module.js": "15358a59697f68c4f7951c04b481c01c76989211702ccd762a247d6b4d7d1f56",
     "dashboards/log-view.json": "224d921c8a5a4c3ed426de83f8f70ddb6406690687423b15e6e5822190bcb64c"
   }
 }
@@ -38,10 +38,10 @@ Hash: SHA512
 Version: OpenPGP.js v4.10.10
 Comment: https://openpgpjs.org
 
-wrcEARMKAAYFAmQGBksAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
-cIhm5xzGAgY8M1HwqILkK/r9A/kbQdqZUMnRwWoqmk/rF0Iy/QZBJwtOxfx/
-1as1g5GpBzNshpJttopD0cQuyjcu89ZFYRWIwAIFFfp1noxjDozs/Dex0yKV
-wiwDqSjus2rxBNm3Yw7YSqXNgLymJRC/BnG+3g0MYeK1iKccy9tWqG9iBpuw
-Cdjl1Uk=
-=aVxm
+wrgEARMKAAYFAmQG1asAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm55wRAgYtpv30X4rrnRzulBUA5hUEfEFEhKDzcO1r1wDMFwcFMIouTNEY
+5BZN7+1rhq1kJ/9QFwD7cEV5I7w53ivWI1boLQIJAazsCIsKX0cos12s+vwy
+zfUAAsOiPtEhfPeKfb7mhVyUOwZ9lKGzzjxJqh7iozuWz8OgixbsE6ZZyt7d
+TE1nbEN/
+=7oRX
 -----END PGP SIGNATURE-----

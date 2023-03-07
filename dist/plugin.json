@@ -26,7 +26,7 @@
       {"name": "Log Dashboard", "path": "img/log-visualisation.png"}
     ],
     "version": "1.0.2",
-    "updated": "2023-03-06"
+    "updated": "2023-03-07"
   },
   "routes": [
     {
