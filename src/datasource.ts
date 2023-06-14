@@ -1,4 +1,4 @@
-import { getBackendSrv, BackendSrvRequest, FetchResponse } from "@grafana/runtime";
+import { getBackendSrv, getTemplateSrv, BackendSrvRequest, FetchResponse } from "@grafana/runtime";
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -58,12 +58,15 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const end = range!.to;
 
     const calls = options.targets.map(target => {
+      const query = getTemplateSrv().replace(target.queryText, options.scopedVars);
+
       const request = {
-        "query": target.queryText,
+        "query": query,
         "startTime": start.toISOString(),
         "endTime": end.toISOString(),
         "send_null": true
       };
+
       return lastValueFrom(
         this.doFetch<any[]>({
           url: this.url + '/api/v1/query',
