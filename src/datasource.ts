@@ -77,7 +77,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             return this.arrayToDataFrame(response.data);
           }),
           catchError((err) => {
-            return of({ data: [] });
+            throw new Error(err.data.message);
           })
         )
       );
