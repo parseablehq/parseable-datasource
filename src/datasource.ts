@@ -93,7 +93,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (options.multi) {
       return value.map(v => `'${v}'`).join(',');
     }
-    return value;
+    return value as string;
   }
 
   arrayToDataFrame(array: any[]): DataFrame {
