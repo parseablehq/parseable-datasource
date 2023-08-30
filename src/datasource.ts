@@ -91,7 +91,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   private formatter(value: string | string[], options: any): string {
     if (options.multi) {
-      return value.map(v => `'${v}'`).join(',');
+      return (value as string[]).map(v => `'${v}'`).join(',');
     }
     return value as string;
   }
