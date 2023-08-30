@@ -8,6 +8,7 @@ import {
   DataFrame,
   FieldType,
   guessFieldTypeFromValue,
+  MetricFindValue
 } from '@grafana/data';
 import { lastValueFrom, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -87,6 +88,30 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return {
       data,
     };
+  }
+
+  async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
+    const to = new Date();
+    const from = new Date();
+    from.setFullYear(to.getFullYear() - 1);
+
+    options = options || {};
+    options.range = options.range || { 
+      from: from,
+      to: to
+    }
+
+    options.targets = [];
+    options.targets.push({ queryText: query, scopedVars: {} });
+
+    const response = await this.query(options);
+
+    return response.data.map((dataFrame) => {
+      return dataFrame.fields[0].values.toArray();
+    }
+    ).flat().map((value) => {
+      return { text: value };
+    });
   }
 
   arrayToDataFrame(array: any[]): DataFrame {
