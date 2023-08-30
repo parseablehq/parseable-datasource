@@ -58,7 +58,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const end = range!.to;
 
     const calls = options.targets.map(target => {
-      const query = getTemplateSrv().replace(target.queryText, options.scopedVars);
+      const query = getTemplateSrv().replace(target.queryText, options.scopedVars, this.formatter);
 
       const request = {
         "query": query,
@@ -87,6 +87,13 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return {
       data,
     };
+  }
+
+  private formatter(value: string | string[], options: any): string {
+    if (options.multi) {
+      return value.map(v => `'${v}'`).join(',');
+    }
+    return value;
   }
 
   arrayToDataFrame(array: any[]): DataFrame {
