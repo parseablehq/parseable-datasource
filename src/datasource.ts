@@ -95,6 +95,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       return (value as string[]).map(v => `'${v}'`).join(',');
     }
     return value as string;
+  }
 
   async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
     const to = new Date();
