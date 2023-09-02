@@ -1,6 +1,6 @@
 {
   "name": "parseable",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Parseable is an open source, Kubernetes native, log storage and observability platform. This plugin allows you to visualize your Parseable logs in Grafana.",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
