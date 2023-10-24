@@ -91,8 +91,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   private formatter(value: string | string[], options: any): string {
-    if (options.multi) {
+    if (options.multi && Array.isArray(value)) {
       return (value as string[]).map(v => `'${v}'`).join(',');
+    } else if (options.multi) {
+      return `'${value}'`;
     }
     return value as string;
   }
