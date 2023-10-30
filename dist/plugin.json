@@ -6,6 +6,9 @@
   "logs": true,
   "metrics": true,
   "tracing": true,
+  "backend": true,
+  "alerting": true,
+  "executable": "gpx_datasource_http_backend",
   "info": {
     "description":  "Parseable is an open source, Kubernetes native, log storage and observability platform. This plugin allows you to visualize your Parseable logs in Grafana.",
     "author": {
@@ -27,7 +30,7 @@
       {"name": "Log Dashboard", "path": "img/log-visualisation.png"}
     ],
     "version": "1.2.0",
-    "updated": "2023-09-02"
+    "updated": "2023-10-30"
   },
   "routes": [
     {
