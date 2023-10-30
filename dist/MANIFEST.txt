@@ -9,12 +9,15 @@ Hash: SHA512
   "signedByOrgName": "parseable",
   "plugin": "parseable-parseable-datasource",
   "version": "1.2.0",
-  "time": 1698650216868,
+  "time": 1698653545911,
   "keyId": "7e4d0c6a708866e7",
   "files": {
+    "gpx_datasource_http_backend_linux_arm": "8c2b748e294ce87dd8f818922b52295106e68e0fff373811a26bfb6774a89380",
+    "gpx_datasource_http_backend_darwin_arm64": "a325741dbeac7a5024a4244c068f411804406342a2d6cb055d105a0aa68deccd",
     "LICENSE": "20b067f86de375aae6db0f283ab2e65de24d537733b89bd58432c101259d84cf",
     "module.js.map": "e2e849f6da9d9d656ffc31d562e803c9d2a9fa43aa4751853d3bda4cf31e1c88",
     "dashboards/log-view.json": "224d921c8a5a4c3ed426de83f8f70ddb6406690687423b15e6e5822190bcb64c",
+    "gpx_datasource_http_backend_linux_amd64": "db77bfc97f908867917001bf8950c04160b159653a84daeb0b0b83fd80d41489",
     "img/logo.svg": "76d1a2c5bde6f58ba8742fcec71f8da1a8171ed438d329cb2a69e258665e3f9f",
     "img/query-editor.png": "b646a29a0ff8bd524e617614bdd6a555924331bc8cbc0dc3e8d0078a20474865",
     "img/configuration.png": "c545a51bcc88809b2b4f87aac517a7d27ad61281344b0485c9826370b915b4d8",
@@ -30,6 +33,9 @@ Hash: SHA512
     "stories/assets/comments.svg": "f15a68374a73c8e6cf024a7a9bf8f6678efe3303427bc03b1de9000541209b71",
     "stories/assets/direction.svg": "94a9917f1c9300cd2e157adaa30a9d2e288af23819645e9c37a273a82a36a240",
     "stories/assets/stackalt.svg": "2ad815430376dd520212b274cf6e00dc4baa4534f7201e26c546a1b4aa722ef6",
+    "gpx_datasource_http_backend_linux_arm64": "1c7a138497a608ec133ebfe5717db8e45b251b3fed41474257c905bb71c2c5ce",
+    "gpx_datasource_http_backend_windows_amd64.exe": "a0f602980ad024357fda8b640865e3b33bbf320fb23dc1666a4f3907fc2c5d54",
+    "gpx_datasource_http_backend_darwin_amd64": "7ef6b4100ba0dae1a87145405855ed31eadde5613f70275ccfd349027b5e94fb",
     "plugin.json": "dcfa7e6efbb28af5d8cbcafd574901907f6d86d1e29fd439ef4e6b1b3c7a222c",
     "CHANGELOG.md": "ba613d6f914b27dce9ace4d8c0cb074273c9eb6c536d8e7ac24c5ce6ae941fd0"
   }
@@ -38,10 +44,10 @@ Hash: SHA512
 Version: OpenPGP.js v4.10.10
 Comment: https://openpgpjs.org
 
-wrgEARMKAAYFAmU/WGkAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
-cIhm501WAgkBYAa8JJcbDM66UUK/em+X8A1mCVserwAGIUI3A0EB19G8lLOe
-XvC1NuPBd1O8RD/eS0KK+RabLdbtdUPEFrlQjiMCB2PTITy9crkvqeRwickQ
-kAUJA7P1rLwr/chDsWz8g+H5guPCR6RDRxUMiMt5PPz+OfS1hhr5Qeem48x9
-JKVZEjq6
-=AVKE
+wrcEARMKAAYFAmU/ZWoAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm5+F7AgY8e48ArIZVRRrdV/l5EeCRWmjlAXHRpb6DtwEaO/yFE8j4ysCg
+7TeqthyN8Y3ihris9aS+uge++1vdGCna+yOsvgIIr8I8xgP49+lxpZNcfS/c
+91DiFyBXmgFqRHoXxmbiXXcqpk4FevioiOyPD+Dk8UUu+BL5RguOU/57Cs0x
+fqL+UOg=
+=E5I9
 -----END PGP SIGNATURE-----
