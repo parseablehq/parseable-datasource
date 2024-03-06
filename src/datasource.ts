@@ -1,8 +1,7 @@
-import { getBackendSrv, getTemplateSrv, BackendSrvRequest, FetchResponse } from "@grafana/runtime";
+import { getBackendSrv, getTemplateSrv, BackendSrvRequest, FetchResponse, DataSourceWithBackend } from "@grafana/runtime";
 import {
   DataQueryRequest,
   DataQueryResponse,
-  DataSourceApi,
   DataSourceInstanceSettings,
   MutableDataFrame,
   DataFrame,
@@ -10,7 +9,7 @@ import {
   guessFieldTypeFromValue,
   MetricFindValue
 } from '@grafana/data';
-import { lastValueFrom, of } from 'rxjs';
+import { lastValueFrom, of, Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { isArray, isNull } from "lodash";
 
@@ -23,7 +22,7 @@ import {
   StreamSchemaResponse,
   StreamStatsResponse
 } from './types';
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptions> {
   url: string;
   withCredentials: boolean;
   headers: any;
@@ -45,7 +44,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return result;
   }
 
-  async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+  query(options: DataQueryRequest<MyQuery>): Observable<DataQueryResponse> {
     options.targets = options.targets.filter((t) => !t.hide);
     if (options.targets.length === 0) {
       return Promise.resolve({ data: [] });

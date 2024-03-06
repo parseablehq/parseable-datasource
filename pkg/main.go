@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	if err := datasource.Manage("grafana-datasourcehttpbackend-datasource", plugin.NewDatasource, plugin.DatasourceOpts); err != nil {
+	if err := datasource.Manage("parseable-parseable-datasource", plugin.NewDatasource, plugin.DatasourceOpts); err != nil {
 		log.DefaultLogger.Error(err.Error())
 		os.Exit(1)
 	}

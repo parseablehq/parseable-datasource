@@ -6,6 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	url2 "net/url"
+	"reflect"
+
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
@@ -15,10 +20,6 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"io"
-	"net/http"
-	url2 "net/url"
-	"reflect"
 )
 
 var (
@@ -65,32 +66,17 @@ func (d *Datasource) Dispose() {
 }
 
 func (d *Datasource) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
-	ctxLogger := log.DefaultLogger.FromContext(ctx)
-	ctxLogger.Debug("QueryData", "queries", len(req.Queries))
-
 	response := backend.NewQueryDataResponse()
-
-	for i, q := range req.Queries {
-		ctxLogger.Debug("Processing query", "number", i, "ref", q.RefID)
-
-		if i%2 != 0 {
-			response.Responses[q.RefID] = backend.ErrDataResponse(
-				backend.StatusBadRequest,
-				fmt.Sprintf("user friendly error for query number %v, excluding any sensitive information", i+1),
-			)
-			continue
-		}
-
+	for _, q := range req.Queries {
 		res, err := d.query(ctx, req.PluginContext, q)
 		switch {
 		case err == nil:
-			break
 		case errors.Is(err, context.DeadlineExceeded):
 			res = backend.ErrDataResponse(backend.StatusTimeout, "gateway timeout")
 		case errors.Is(err, errRemoteRequest):
 			res = backend.ErrDataResponse(backend.StatusBadGateway, "bad gateway request")
 		case errors.Is(err, errRemoteResponse):
-			res = backend.ErrDataResponse(backend.StatusValidationFailed, err.Error())
+			res = backend.ErrDataResponse(backend.StatusInternal, err.Error())
 		default:
 			res = backend.ErrDataResponse(backend.StatusInternal, err.Error())
 		}
@@ -145,12 +131,11 @@ func (d *Datasource) query(ctx context.Context, pCtx backend.PluginContext, quer
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(requestBodyAsString))
-	req.Header.Set("Content-Type", "application/json")
-
 	if err != nil {
 		ctxLogger.Error("query: failed to create request", "err", err)
 		return backend.DataResponse{}, fmt.Errorf("new request with context: %w", err)
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	httpResp, err := d.httpClient.Do(req)
 
@@ -172,12 +157,12 @@ func (d *Datasource) query(ctx context.Context, pCtx backend.PluginContext, quer
 	span.AddEvent("HTTP request done")
 
 	if httpResp.StatusCode != http.StatusOK {
-		body, err := io.ReadAll(httpResp.Body)
+		_, err := io.ReadAll(httpResp.Body)
 		if err != nil {
 			ctxLogger.Error("query: failed to read response body", "err", err)
 			return backend.DataResponse{}, fmt.Errorf("%w: read body: %s", errRemoteResponse, err)
 		}
-		return backend.DataResponse{}, fmt.Errorf("%w: expected 200 response, got %d. Response: %s", errRemoteResponse, httpResp.StatusCode, body)
+		return backend.DataResponse{}, fmt.Errorf("%w: expected 200 response, got %d", errRemoteResponse, httpResp.StatusCode)
 	}
 
 	var body apiMetrics
