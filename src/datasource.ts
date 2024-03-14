@@ -44,49 +44,57 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     return result;
   }
 
-  query(options: DataQueryRequest<MyQuery>): Observable<DataQueryResponse> {
-    options.targets = options.targets.filter((t) => !t.hide);
-    if (options.targets.length === 0) {
-      return Promise.resolve({ data: [] });
-    }
+  query(options: DataQueryRequest<MyQuery>): Observable<DataQueryResponse>{
+    return new Observable<DataQueryResponse>(observer => {
+      options.targets = options.targets.filter((t) => !t.hide);
+      if (options.targets.length === 0) {
+        observer.next({ data: [] });
+        observer.complete();
+        return;
+      }
 
-    const { range } = options;
-    if (!range) {
-      return Promise.resolve({ data: [] });
-    }
-    const start = range!.from;
-    const end = range!.to;
+      const { range } = options;
+      if (!range) {
+        observer.next({ data: [] });
+        observer.complete();
+        return;
+      }
+      const start = range!.from;
+      const end = range!.to;
 
-    const calls = options.targets.map(target => {
-      const query = getTemplateSrv().replace(target.queryText, options.scopedVars, this.formatter);
+      const calls = options.targets.map(target => {
+        const query = getTemplateSrv().replace(target.queryText, options.scopedVars, this.formatter);
 
-      const request = {
-        "query": query,
-        "startTime": start.toISOString(),
-        "endTime": end.toISOString(),
-        "send_null": true
-      };
+        const request = {
+          "query": query,
+          "startTime": start.toISOString(),
+          "endTime": end.toISOString(),
+          "send_null": true
+        };
 
-      return lastValueFrom(
-        this.doFetch<any[]>({
-          url: this.url + '/api/v1/query',
-          data: request,
-          method: 'POST',
-        }).pipe(
-          map((response) => {
-            return this.arrayToDataFrame(response.data);
-          }),
-          catchError((err) => {
-            throw new Error(err.data.message);
-          })
-        )
-      );
+        return lastValueFrom(
+          this.doFetch<any[]>({
+            url: this.url + '/api/v1/query',
+            data: request,
+            method: 'POST',
+          }).pipe(
+            map((response) => {
+              return this.arrayToDataFrame(response.data);
+            }),
+            catchError((err) => {
+              throw new Error(err.data.message);
+            })
+          )
+        );
+      });
+
+      Promise.all(calls).then(data => {
+        observer.next({ data });
+        observer.complete();
+      }).catch(error => {
+        observer.error(error);
+      });
     });
-
-    const data = await Promise.all(calls);
-    return {
-      data,
-    };
   }
 
   private formatter(value: string | string[], options: any): string {
@@ -112,14 +120,21 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     options.targets = [];
     options.targets.push({ queryText: query, scopedVars: {} });
 
-    const response = await this.query(options);
-
-    return response.data.map((dataFrame) => {
-      return dataFrame.fields[0].values.toArray();
-    }
-    ).flat().map((value) => {
-      return { text: value };
-    });
+    return new Promise<MetricFindValue[]>((resolve, reject) => {
+      this.query(options).subscribe({
+        next: (response: DataQueryResponse) => {
+          const values: MetricFindValue[] = response.data
+            .map((dataFrame: DataFrame) => dataFrame.fields[0].values.toArray())
+            .flat()
+            .map((value: any) => ({ text: value }));
+  
+          resolve(values);
+        },
+        error: (error: any) => {
+          reject(error);
+        },
+      });
+    })
   }
 
   arrayToDataFrame(array: any[]): DataFrame {
