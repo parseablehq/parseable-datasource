@@ -15,7 +15,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
     return (
       <div className="gf-form-group">
       <DataSourceHttpSettings
-      defaultUrl={'https://demo.parseable.io'}
+      defaultUrl={'https://demo.parseable.com'}
       dataSourceConfig={options}
       showAccessOptions={true}
       onChange={onOptionsChange}

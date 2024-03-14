@@ -9,22 +9,22 @@ Hash: SHA512
   "signedByOrgName": "parseable",
   "plugin": "parseable-parseable-datasource",
   "version": "1.2.0",
-  "time": 1698653545911,
+  "time": 1710414344240,
   "keyId": "7e4d0c6a708866e7",
   "files": {
-    "gpx_datasource_http_backend_linux_arm": "8c2b748e294ce87dd8f818922b52295106e68e0fff373811a26bfb6774a89380",
-    "gpx_datasource_http_backend_darwin_arm64": "a325741dbeac7a5024a4244c068f411804406342a2d6cb055d105a0aa68deccd",
+    "gpx_datasource_http_backend_linux_arm": "ad0de4e1f59aedbc602afe200d4c952e034fb3bd3dca170e1df013ca8e0ca4c7",
+    "gpx_datasource_http_backend_darwin_arm64": "f9559d770d57f20df84324e133e74dbbaeac4b612664b52ba4b44730410e8146",
     "LICENSE": "20b067f86de375aae6db0f283ab2e65de24d537733b89bd58432c101259d84cf",
-    "module.js.map": "e2e849f6da9d9d656ffc31d562e803c9d2a9fa43aa4751853d3bda4cf31e1c88",
+    "module.js.map": "bc34678d7de3d93c345dde099e997c799aa162f790d81f691dc2deeadc2a49a2",
     "dashboards/log-view.json": "224d921c8a5a4c3ed426de83f8f70ddb6406690687423b15e6e5822190bcb64c",
-    "gpx_datasource_http_backend_linux_amd64": "db77bfc97f908867917001bf8950c04160b159653a84daeb0b0b83fd80d41489",
+    "gpx_datasource_http_backend_linux_amd64": "923fb8c35c13078f74589746b6774f5b5406b991ffc39d9a38a25c2db7b023e1",
     "img/logo.svg": "76d1a2c5bde6f58ba8742fcec71f8da1a8171ed438d329cb2a69e258665e3f9f",
     "img/query-editor.png": "b646a29a0ff8bd524e617614bdd6a555924331bc8cbc0dc3e8d0078a20474865",
     "img/configuration.png": "c545a51bcc88809b2b4f87aac517a7d27ad61281344b0485c9826370b915b4d8",
     "img/log-view-text.png": "8c6555af9c391cb1a8368c79b9bcc7386887beeea061e3483b0e020feec9d73d",
     "img/log-visualisation.png": "e8958c2be07abc962f72c9a824eba02363f1facd32d59fefeab8e34172ac5fed",
-    "module.js": "201ee29d0ecd4df72f7c0dc86b411678d1aab98dafc246fed1193dbbaa52b08b",
-    "README.md": "030a05e0d49d3746ef272d53c99936e3b98e3219a1cac96ca1df48ddee475934",
+    "module.js": "bb2934550f02f0d2c4db3027cd9a9dcbcfece02b92d1f911cc909204c9eccb02",
+    "README.md": "10e900bf3eb640cd3a0467ba807899bc6945360378c38780337f9a51e0b406eb",
     "stories/assets/flow.svg": "275142c67bb630246cbdfb0fc3493f17dd695544777ec8da852dbbe94976d323",
     "stories/assets/plugin.svg": "571483147bfb6c26ac9e3cd5fe0c4062253c17a35b966772641e8934b11276c3",
     "stories/assets/colors.svg": "ac9401f382465486f15c7012f1b8ffec360794f9773b789e3f72f07c9325f447",
@@ -33,21 +33,21 @@ Hash: SHA512
     "stories/assets/comments.svg": "f15a68374a73c8e6cf024a7a9bf8f6678efe3303427bc03b1de9000541209b71",
     "stories/assets/direction.svg": "94a9917f1c9300cd2e157adaa30a9d2e288af23819645e9c37a273a82a36a240",
     "stories/assets/stackalt.svg": "2ad815430376dd520212b274cf6e00dc4baa4534f7201e26c546a1b4aa722ef6",
-    "gpx_datasource_http_backend_linux_arm64": "1c7a138497a608ec133ebfe5717db8e45b251b3fed41474257c905bb71c2c5ce",
-    "gpx_datasource_http_backend_windows_amd64.exe": "a0f602980ad024357fda8b640865e3b33bbf320fb23dc1666a4f3907fc2c5d54",
-    "gpx_datasource_http_backend_darwin_amd64": "7ef6b4100ba0dae1a87145405855ed31eadde5613f70275ccfd349027b5e94fb",
-    "plugin.json": "dcfa7e6efbb28af5d8cbcafd574901907f6d86d1e29fd439ef4e6b1b3c7a222c",
+    "gpx_datasource_http_backend_linux_arm64": "b7042eacfc1fac19ee28edb2956466f46d0d6a82a51098a584c2a6753dabe146",
+    "gpx_datasource_http_backend_windows_amd64.exe": "29921a641e428d4fad9870f22125621487d115d8579770f8724e2421ff3fb31f",
+    "gpx_datasource_http_backend_darwin_amd64": "c41a7c80671710785f50b2a8ca01bb1b66f871dad49f8346e854355fbeace5aa",
+    "plugin.json": "b41e321b5f2c079a3a0678c2460f34a80f0133e31834d4586423680317e6d499",
     "CHANGELOG.md": "ba613d6f914b27dce9ace4d8c0cb074273c9eb6c536d8e7ac24c5ce6ae941fd0"
   }
 }
 -----BEGIN PGP SIGNATURE-----
-Version: OpenPGP.js v4.10.10
+Version: OpenPGP.js v4.10.11
 Comment: https://openpgpjs.org
 
-wrcEARMKAAYFAmU/ZWoAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
-cIhm5+F7AgY8e48ArIZVRRrdV/l5EeCRWmjlAXHRpb6DtwEaO/yFE8j4ysCg
-7TeqthyN8Y3ihris9aS+uge++1vdGCna+yOsvgIIr8I8xgP49+lxpZNcfS/c
-91DiFyBXmgFqRHoXxmbiXXcqpk4FevioiOyPD+Dk8UUu+BL5RguOU/57Cs0x
-fqL+UOg=
-=E5I9
+wrkEARMKAAYFAmXy2ggAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm5zdgAgkA/sPRaAt7ZUj+BVsPtiLBT7Dtwpuk4aNxj8lhR08gePLzo0Hw
+PrOakMFN9c1+3L3lIqzNpOX+WmgMKcEqWuTLs30CCQA6yhSQ9XmLax5m3788
+/eqvjKesJuaVg03TXbCG6crI/T1VwoetE+1f1q2Sqf5ffqP316vgWi2C+KQb
+D/4PdkgE3w==
+=P1oy
 -----END PGP SIGNATURE-----
