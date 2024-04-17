@@ -233,11 +233,11 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
   }
 
   async testDatasource() {
-    const errorMessageBase = 'Parseable server is not reachable';
+    const errorMessageBase = 'Parseable server is not reachable. Verify that your basic authentication credentials are accurate.';
     try {
       const response = await lastValueFrom(
         this.doFetch({
-          url: this.url + '/api/v1/readiness',
+          url: this.url + '/api/v1/logstream',
           method: 'GET',
         }).pipe(map((response) => response))
       );
