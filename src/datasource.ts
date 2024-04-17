@@ -237,7 +237,7 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     try {
       const response = await lastValueFrom(
         this.doFetch({
-          url: this.url + '/api/v1/readiness',
+          url: this.url + '/api/v1/logstream',
           method: 'GET',
         }).pipe(map((response) => response))
       );
