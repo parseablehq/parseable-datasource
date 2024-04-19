@@ -9,16 +9,17 @@ Hash: SHA512
   "signedByOrgName": "parseable",
   "plugin": "parseable-parseable-datasource",
   "version": "1.2.0",
-  "time": 1713338060319,
+  "time": 1713515757716,
   "keyId": "7e4d0c6a708866e7",
   "files": {
-    "gpx_datasource_http_backend_darwin_arm64": "7bb778016c32cdad607f110ceb53258361cb7cf92a4f8b9f65a4bebe50e540f3",
-    "gpx_datasource_http_backend_linux_amd64": "1b00783046740cdbc8d42bea65c02539e9f34b0428cbf5dbe031c4c06a19d782",
-    "gpx_datasource_http_backend_linux_arm": "889d6bf8961a11405fa94b621c1113dde19b4b4a21b71435c9f01c99136ef3c9",
+    "go_plugin_build_manifest": "bd96702838c93bfecd7156340bdb08bc33ad823ac54251c7371d8f4ba13c9888",
+    "gpx_datasource_http_backend_darwin_arm64": "a8a6ce9aa0d13ec5b55138ee5eacc4eb8e3833242b69613c04f94d8dbe48f5f9",
+    "gpx_datasource_http_backend_linux_amd64": "58c256263d8eafb3dbc8d70079b7a5555655efe6a76596a16b27774e2cc24f71",
+    "gpx_datasource_http_backend_linux_arm": "486561c33e3746d16382282c6f7a9d8380aa5f781efd0a99c13ef49283bcc76b",
     "LICENSE": "20b067f86de375aae6db0f283ab2e65de24d537733b89bd58432c101259d84cf",
     "CHANGELOG.md": "ba613d6f914b27dce9ace4d8c0cb074273c9eb6c536d8e7ac24c5ce6ae941fd0",
-    "module.js.map": "c82d16155b4402ec092fdae639f7c12c3021571a5f762b4330a7d9eef447bc61",
-    "plugin.json": "fcfc5e6d319a8900b1a60d9fa6297963f38108c46fb981bc1c0a0ef863b075aa",
+    "module.js.map": "2afbdc0f3ff3d429fd9b6faa4d0d8b919805404cedb6f64b9f495d01fa592b9c",
+    "plugin.json": "eb1f658887d1a97d01b1b7754e885feb70d08655a526adcbb5c3e3fbb0eaaa18",
     "README.md": "10e900bf3eb640cd3a0467ba807899bc6945360378c38780337f9a51e0b406eb",
     "img/configuration.png": "c545a51bcc88809b2b4f87aac517a7d27ad61281344b0485c9826370b915b4d8",
     "img/log-view-text.png": "8c6555af9c391cb1a8368c79b9bcc7386887beeea061e3483b0e020feec9d73d",
@@ -33,21 +34,21 @@ Hash: SHA512
     "stories/assets/code-brackets.svg": "9ef6443ebd43351be1a6edbab492003b84f2e30c8f80207ec8c4138fa440f7f4",
     "stories/assets/flow.svg": "275142c67bb630246cbdfb0fc3493f17dd695544777ec8da852dbbe94976d323",
     "stories/assets/repo.svg": "fb4ece472009833a03b9f1fbc775f13a010d9432cae3844e8b05710ba028100d",
-    "module.js": "31c7830c7fb1a784d66bd8001d1f22b3205fbe587c248da438f210c191582c39",
+    "module.js": "fbb5399ccd3c69b32bea34d60b7107efdfcc4c175a81c00f6fd6ef1e7e65b827",
     "dashboards/log-view.json": "224d921c8a5a4c3ed426de83f8f70ddb6406690687423b15e6e5822190bcb64c",
-    "gpx_datasource_http_backend_linux_arm64": "0bb40f1724fdd1b899244339bfd1970fcb7b2842273d9b1f2393eca122591df1",
-    "gpx_datasource_http_backend_darwin_amd64": "80ad01d13ccb490ff711790cfb73b8296260c7445daf05598e2dae92e049d903",
-    "gpx_datasource_http_backend_windows_amd64.exe": "bbd148dd184724a15df93750a3863ae510314f75a52d4960695a56e0d79c5dd7"
+    "gpx_datasource_http_backend_linux_arm64": "9d73bf2c30dd95eb78034f3b4b03f8122ed6634e8604d0e8734fa2d4b171d28c",
+    "gpx_datasource_http_backend_darwin_amd64": "424508f224f83a755c8392663ab7c1e5b6e2761f4ea5ff92d10c009af45b8521",
+    "gpx_datasource_http_backend_windows_amd64.exe": "c36d72a7ccbc395aa5940080f3f7b3edc494400f4e359c0155e4493a3ae3d38a"
   }
 }
 -----BEGIN PGP SIGNATURE-----
 Version: OpenPGP.js v4.10.11
 Comment: https://openpgpjs.org
 
-wrkEARMKAAYFAmYfdswAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
-cIhm52D9AgkBh1lBX9eZ8XXWff8qWqrnCFLpl7ptjnRacd4luf5lywDY2QJQ
-/hN4fnDUj08tLbY27MSAfUjZYIdAdQEcqUrwfNgCCQF0BmAAzZ01hw5/X2ck
-AyTewORsmOZWhI+MZOxwSrx1jlf/tomcqmVsUCnLbLqzZ72/HqZpX+CaeG/R
-nvlkheGK0A==
-=DvBY
+wrkEARMKAAYFAmYiLO0AIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm5w2VAgkBgNNuNS2JuOuI0UbVA+AZYwIo5J+FSeE/hN7C0eAFqRKBP7VY
+Z53UE9oryBNWj1u+ixP1oZNrVAoVv09yd7CbYZcCCQDBp5tUqC+/5uOA666v
+rG0zdI1EhANR+MWtxUrIjoS0KAlU4zIliIW9lFRD4cvwagPcFYOTLF5hGd0e
+ZAMH3OTetQ==
+=6wJc
 -----END PGP SIGNATURE-----
