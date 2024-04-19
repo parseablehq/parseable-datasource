@@ -247,7 +247,7 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
       }
 
       return {
-        message: response.statusText ? response.statusText : errorMessageBase,
+        message: response.status === 400 || !response.statusText ? errorMessageBase : response.statusText,
         status: 'error',
         title: 'Error',
       };
