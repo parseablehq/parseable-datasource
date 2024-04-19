@@ -32,7 +32,7 @@ allow_loading_unsigned_plugins = parseable-parseable-datasource
 6. On a terminal, open the `plugins` folder > run:
 
 ```
-unzip parseable-parseable-datasource-*.*.*.zip -d ./parseable-parseable-datasource
+unzip parseable-datasource-*.*.*.zip -d ./parseable-parseable-datasource
 ```
 11. Restart the Grafana server to load the manually installed plugin.
 
