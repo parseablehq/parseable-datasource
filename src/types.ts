@@ -69,8 +69,8 @@ export interface StreamStatsResponse {
 }
 
 export interface SchemaFields {
-  name?: string;
-  data_type?: "Utf8";
+  name: string;
+  data_type?: string;
   nullable?: boolean;
   dict_id?: number;
   dict_is_ordered?: boolean;

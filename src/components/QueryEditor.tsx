@@ -1,5 +1,5 @@
 import React, { ComponentType, ChangeEvent, useState } from 'react';
-import { LegacyForms, AsyncSelect, InlineField, InlineFieldRow, SeriesTable, Label} from '@grafana/ui';
+import { LegacyForms, AsyncSelect, InlineField, InlineFieldRow, SeriesTable, Label } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue, GraphSeriesValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { SchemaFields, MyDataSourceOptions, MyQuery } from '../types';
@@ -11,7 +11,6 @@ interface Props extends QueryEditorProps<DataSource, MyQuery, MyDataSourceOption
 }
 
 export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQuery, query }) => {
-
   const { queryText } = query;
   //const [stream, setStream] = React.useState<SelectableValue<string | number>>();
 
@@ -28,7 +27,7 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
     );
   }, [datasource]);
 
-  const [value, setValue] = useState<SelectableValue<string>>();
+  const [selectedStream, setSelectedStream] = useState<SelectableValue<string>>();
   const [schema = '', setSchema] = React.useState<string | number>();
   const [count = '', setEventCount] = React.useState<string | GraphSeriesValue>();
   const [jsonsize = '', setJsonSize] = React.useState<string | number>();
@@ -37,52 +36,58 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   const [time = '', setTime] = React.useState<string | number>();
   //const [fielder, setFielder] = React.useState<string | number>();
 
-  const loadStreamSchema = React.useCallback((value) => {
-    if (value) {
-      return datasource.streamSchema(value).then(
-        (result) => {
-          if (result.fields) {
-            const schema = result.fields.map((data: SchemaFields) => (data.name));
-            const schemaToText = schema.join(", ")
-            setSchema(schemaToText);
+  const loadStreamSchema = React.useCallback(
+    (streamName) => {
+      if (streamName && typeof streamName === 'string') {
+        return datasource.getStreamSchema(streamName).then(
+          (result) => {
+            if (result.fields) {
+              const schema = result.fields.map((data: SchemaFields) => data.name);
+              const schemaToText = schema.join(', ');
+              setSchema(schemaToText);
+              return schema;
+            }
             return schema;
+          },
+          (response) => {
+            throw new Error(response.statusText);
           }
-          return schema;
-        },
-        (response) => {
-          throw new Error(response.statusText);
-        }
-      );
-    }
-    return '';
-  }, [datasource, schema]);
+        );
+      }
+      return '';
+    },
+    [datasource, schema]
+  );
 
-  const loadStreamStats = React.useCallback((value) => {
-    if (value) {
-      return datasource.streamStats(value).then(
-        (result) => {
-          if (result.ingestion) {
-            const count = result.ingestion.count;
-            const jsonsize = result.ingestion.size;
-            const parquetsize = result.storage?.size;
-            const streamname = result.stream;
-            const time = result.time;
-            setJsonSize(jsonsize);
-            setParquetSize(parquetsize);
-            setStreamName(streamname);
-            setEventCount(count);
-            setTime(time);
+  const loadStreamStats = React.useCallback(
+    (streamName) => {
+      if (streamName) {
+        return datasource.getStreamStats(streamName).then(
+          (result) => {
+            if (result.ingestion) {
+              const count = result.ingestion.count;
+              const jsonsize = result.ingestion.size;
+              const parquetsize = result.storage?.size;
+              const streamname = result.stream;
+              const time = result.time;
+              setJsonSize(jsonsize);
+              setParquetSize(parquetsize);
+              setStreamName(streamname);
+              setEventCount(count);
+              setTime(time);
+              return count;
+            }
             return count;
+          },
+          (response) => {
+            throw new Error(response.statusText);
           }
-          return count;
-        },
-        (response) => {
-          throw new Error(response.statusText);
-        }
-      );
-    }
-    return '';
-  }, [datasource, count]);
+        );
+      }
+      return '';
+    },
+    [datasource, count]
+  );
 
   const onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...query, queryText: event.target.value });
@@ -90,36 +95,34 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
 
   React.useEffect(() => {
     const getData = setTimeout(() => {
-      onRunQuery()
-    },
-      2000)
-    return () => clearTimeout(getData)
-  }, [onRunQuery, queryText])
+      onRunQuery();
+    }, 2000);
+    return () => clearTimeout(getData);
+  }, [onRunQuery, queryText]);
 
   React.useEffect(() => {
-    loadStreamSchema(value)
-  }, [loadStreamSchema, value]);
+    loadStreamSchema(selectedStream?.value);
+  }, [loadStreamSchema, selectedStream]);
 
   React.useEffect(() => {
-    loadStreamStats(value)
-  }, [loadStreamStats, value]);
+    loadStreamStats(selectedStream?.value);
+  }, [loadStreamStats, selectedStream]);
 
   return (
     <>
       <InlineFieldRow>
         <InlineField>
-          <Label>
-            Select a log stream:
-          </Label>   
+          <Label>Select a log stream:</Label>
         </InlineField>
-        <InlineField>          
+        <InlineField>
           <AsyncSelect
             loadOptions={loadAsyncOptions}
             defaultOptions
-            value={value}
-            onChange={v => {
-              setValue(v);
-            }}/>
+            value={selectedStream}
+            onChange={(v) => {
+              setSelectedStream(v);
+            }}
+          />
         </InlineField>
         {/* <InlineField>
           <TextArea
@@ -133,44 +136,44 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
       </InlineFieldRow>
 
       <InlineFieldRow>
-      <InlineField>
-        <SeriesTable 
-          series={[
+        <InlineField>
+          <SeriesTable
+            series={[
               {
                 color: '#299c46',
                 isActive: true,
                 label: 'Stream name',
-                value: streamname
+                value: streamname,
               },
               {
                 color: '#299c46',
                 isActive: false,
                 label: 'Column names',
-                value: schema
+                value: schema,
               },
               {
                 color: '#299c46',
                 isActive: false,
                 label: 'Total ingested event count',
-                value: count
+                value: count,
               },
               {
                 color: '#299c46',
                 isActive: false,
                 label: 'Total ingested json size',
-                value: jsonsize
+                value: jsonsize,
               },
               {
                 color: '#299c46',
                 isActive: false,
                 label: 'Total stored data size',
-                value: parquetsize
-              }
+                value: parquetsize,
+              },
             ]}
             timestamp={time}
           />
-          </InlineField>
-        </InlineFieldRow>
+        </InlineField>
+      </InlineFieldRow>
 
       <br></br>
       <FormField
