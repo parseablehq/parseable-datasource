@@ -178,7 +178,6 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     let isHeadersMadeFromData = false;
 
     const setHeadersFromData = () => {
-      console.log("setting headers from data")
       if (array.length > 0) {
         const fields = Object.keys(array[0]).map((field) => {
           let fieldType = guessFieldTypeFromValue(array[0][field]);
@@ -221,7 +220,6 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
           return { name: field.name, type: grafanaDatatype };
         });
         dataFrame = new MutableDataFrame({ fields: headers });
-        console.log("setting headers from schema")
       } else {
         setHeadersFromData();
       }
