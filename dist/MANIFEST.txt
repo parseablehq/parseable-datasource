@@ -9,13 +9,13 @@ Hash: SHA512
   "signedByOrgName": "parseable",
   "plugin": "parseable-parseable-datasource",
   "version": "1.2.1",
-  "time": 1718097507460,
+  "time": 1718099369622,
   "keyId": "7e4d0c6a708866e7",
   "files": {
     "go_plugin_build_manifest": "bd96702838c93bfecd7156340bdb08bc33ad823ac54251c7371d8f4ba13c9888",
-    "gpx_datasource_http_backend_darwin_arm64": "b5190c7d8201b96cd535c0b5d91ed7328ffdc724fa4783abf229c4319677d44d",
-    "gpx_datasource_http_backend_linux_amd64": "8582ab938c3db7b3ac8ba05cc2a280995470269e3fee316387f9e827dd798b05",
-    "gpx_datasource_http_backend_linux_arm": "dacdf1a23fa722032ed71fd77cf48cdad3ba0a6426fe3c6454aa2f34af34ca1d",
+    "gpx_datasource_http_backend_darwin_arm64": "f62c9aaacf04f770dd6cfe3050a9a5d33c1c7c3d320d6634ff27b890a846ef94",
+    "gpx_datasource_http_backend_linux_amd64": "643560a07847944626deaef6b8af27d3b77ee8d087ae37562cec68f189427a58",
+    "gpx_datasource_http_backend_linux_arm": "4cf45b66781228049bc686ae58ad3bc204c63c45b08c0a14ea0294310dc3a72d",
     "LICENSE": "20b067f86de375aae6db0f283ab2e65de24d537733b89bd58432c101259d84cf",
     "CHANGELOG.md": "ba613d6f914b27dce9ace4d8c0cb074273c9eb6c536d8e7ac24c5ce6ae941fd0",
     "module.js.map": "96bb630fe1eae375cdf3eaa7490fb296c16fbc73eb69672a63ce943f80a52a9f",
@@ -36,19 +36,19 @@ Hash: SHA512
     "stories/assets/repo.svg": "fb4ece472009833a03b9f1fbc775f13a010d9432cae3844e8b05710ba028100d",
     "module.js": "9b4e91d68838fceddc3997fb02adaa8979ea8942692cf2ca6df2fd7217779d3c",
     "dashboards/log-view.json": "224d921c8a5a4c3ed426de83f8f70ddb6406690687423b15e6e5822190bcb64c",
-    "gpx_datasource_http_backend_linux_arm64": "c2df609bf3ef2d70b09623f1e7ef94e5f1b23268fe326eac0ba49f5a29c86876",
-    "gpx_datasource_http_backend_darwin_amd64": "c617d04c62d0e43bf1f8beb91d6e4a5289e2495c6cdf62258229434da68b8c00",
-    "gpx_datasource_http_backend_windows_amd64.exe": "796397fe0473122605b302ca56a1768f6509ec05d14b2151fe2f6daad9264194"
+    "gpx_datasource_http_backend_linux_arm64": "d85baea49a480cdbac10533eccc0153319db66547e645e00c5dcbefc1cb0cc31",
+    "gpx_datasource_http_backend_darwin_amd64": "87c92208b977c3bb36b0417759e99b128cde2b417e17c7b8fcf4da307d1b3afa",
+    "gpx_datasource_http_backend_windows_amd64.exe": "e6d19924e88f774b82c20cb87a1c58cc3e60b045ef1875ded01c9f5571827413"
   }
 }
 -----BEGIN PGP SIGNATURE-----
 Version: OpenPGP.js v4.10.11
 Comment: https://openpgpjs.org
 
-wrkEARMKAAYFAmZoFmMAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
-cIhm53I3AgkA2BAIehEYlsZO/OK4e7+vAvC0/L5ObmLC1wf/Me49tl0rValz
-6QL9mmqYMswLCYy1BZiQjmFrfvTFiblCWlmFuJACCQB16QxM6gN9jB+O8YgM
-6cGp+Ay95jCVPJc3omWxgbmTmpdx8fpVXtm3y/QUA782mAnl30fqwIcQ6rsD
-2rCw1uwnYQ==
-=3aaY
+wrkEARMKAAYFAmZoHakAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm5+KpAgkA6Zju3LNlBr+a3UpnQ6TTVrEEyEq8690WlS9YiFIwhiA+ML/n
+uy7FbNRIl552L8yfeKcPUHdRNS1u5Sb8CRZr0T8CCQAOS+cJ5GCTCyWVw17z
+2JiJ3DrrFt945M8NmrVQPpopXbbMf6KdvXsrr70Mfa7DvU8AmSe+4CuhlmKu
+cVQVWc34zA==
+=VvSm
 -----END PGP SIGNATURE-----
