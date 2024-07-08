@@ -36,6 +36,9 @@ unzip parseable-datasource-*.*.*.zip -d ./parseable-parseable-datasource
 ```
 11. Restart the Grafana server to load the manually installed plugin.
 
+## Dashboards
+
+This repository also contains dashboard developed using Parseable datasource plugin as data source. Refer the [dashboards](./dashboards/) directory for more details.
 
 ## Credits
 
