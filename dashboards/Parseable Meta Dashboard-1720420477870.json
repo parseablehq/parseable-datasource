@@ -1,0 +1,2399 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PARSEABLE-PARSEABLE-DATASOURCE",
+      "label": "parseable-parseable-datasource",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "parseable-parseable-datasource",
+      "pluginName": "Parseable"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "parseable-parseable-datasource",
+      "name": "Parseable",
+      "version": "1.2.1"
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "This dashboard allows users to monitor ingestion and storage details of their Parseable cluster.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 28,
+      "panels": [],
+      "title": "Ingested Data Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Event Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "SELECT DATE_BIN('$time_step_size', p_timestamp, NOW()) AS time, SUM(parseable_events_ingested) AS total_events_ingested  FROM pmeta where address= '$ingestor_url' GROUP BY time  ORDER BY time ASC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Ingested events count over time",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed",
+            "seriesBy": "last"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Event Size",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 1
+      },
+      "id": 36,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "SELECT DATE_BIN('$time_step_size', p_timestamp, NOW()) AS time, MAX(parseable_events_ingested_size) as event_size FROM pmeta  where address='$ingestor_url' GROUP BY time  ORDER BY time ASC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Ingested event size over time (JSON size)",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed",
+            "seriesBy": "last"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Data Size",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
+      "id": 40,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "SELECT DATE_BIN('$time_step_size', p_timestamp, NOW()) AS time, MAX(parseable_storage_size_data) as data_size FROM pmeta  where address='$ingestor_url' GROUP BY time  ORDER BY time ASC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Stored data size over time (Parquet size)",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Event Count",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 10
+      },
+      "id": 6,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "time",
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select a.time,SUM(a.current_events) as current_events, SUM(a.lifetime_events) as lifetime_events, SUM(a.deleted_events) as deleted_events from  (select MAX(parseable_events_ingested) as current_events, MAX(parseable_lifetime_events_ingested) as lifetime_events,   MAX(parseable_deleted_events_ingested) as deleted_events, DATE_BIN('$time_step_size', p_timestamp, NOW()) AS time from pmeta where address='$ingestor_url' group by time order by time) a GROUP BY a.time ORDER BY a.time;",
+          "refId": "A"
+        }
+      ],
+      "title": "Event count - current, lifetime & deleted over time",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "enumConfig": {
+                  "text": [
+                    "2024-06-20T00:37:58.567779983Z",
+                    "2024-06-20T00:38:58.567779983Z",
+                    "2024-06-20T00:39:58.567779983Z",
+                    "2024-06-20T00:40:58.567779983Z",
+                    "2024-06-20T00:41:58.567779983Z",
+                    "2024-06-20T00:42:58.567779983Z",
+                    "2024-06-20T00:43:58.567779983Z",
+                    "2024-06-20T00:44:58.567779983Z",
+                    "2024-06-20T00:45:58.567779983Z",
+                    "2024-06-20T00:46:58.567779983Z",
+                    "2024-06-20T00:47:58.567779983Z",
+                    "2024-06-20T00:48:58.567779983Z",
+                    "2024-06-20T00:49:58.567779983Z",
+                    "2024-06-20T00:50:58.567779983Z",
+                    "2024-06-20T00:51:58.567779983Z",
+                    "2024-06-20T00:52:58.567779983Z",
+                    "2024-06-20T00:53:58.567779983Z",
+                    "2024-06-20T00:54:58.567779983Z",
+                    "2024-06-20T00:55:58.567779983Z",
+                    "2024-06-20T00:56:58.567779983Z",
+                    "2024-06-20T00:57:58.567779983Z",
+                    "2024-06-20T00:58:58.567779983Z",
+                    "2024-06-20T00:59:58.567779983Z",
+                    "2024-06-20T01:00:58.567779983Z",
+                    "2024-06-20T01:01:58.567779983Z",
+                    "2024-06-20T01:02:58.567779983Z",
+                    "2024-06-20T01:03:58.567779983Z",
+                    "2024-06-20T01:04:58.567779983Z",
+                    "2024-06-20T01:05:58.567779983Z",
+                    "2024-06-20T01:06:58.567779983Z",
+                    "2024-06-20T01:07:58.567779983Z",
+                    "2024-06-20T01:08:58.567779983Z",
+                    "2024-06-20T01:09:58.567779983Z",
+                    "2024-06-20T01:10:58.567779983Z",
+                    "2024-06-20T01:11:58.567779983Z",
+                    "2024-06-20T01:12:58.567779983Z",
+                    "2024-06-20T01:13:58.567779983Z",
+                    "2024-06-20T01:14:58.567779983Z",
+                    "2024-06-20T01:15:58.567779983Z",
+                    "2024-06-20T01:16:58.567779983Z",
+                    "2024-06-20T01:17:58.567779983Z",
+                    "2024-06-20T01:18:58.567779983Z",
+                    "2024-06-20T01:19:58.567779983Z",
+                    "2024-06-20T01:20:58.567779983Z",
+                    "2024-06-20T01:21:58.567779983Z",
+                    "2024-06-20T01:22:58.567779983Z",
+                    "2024-06-20T01:23:58.567779983Z",
+                    "2024-06-20T01:24:58.567779983Z",
+                    "2024-06-20T01:25:58.567779983Z",
+                    "2024-06-20T01:26:58.567779983Z",
+                    "2024-06-20T01:27:58.567779983Z",
+                    "2024-06-20T01:28:58.567779983Z",
+                    "2024-06-20T01:29:58.567779983Z",
+                    "2024-06-20T01:30:58.567779983Z",
+                    "2024-06-20T01:31:58.567779983Z",
+                    "2024-06-20T01:32:58.567779983Z",
+                    "2024-06-20T01:33:58.567779983Z",
+                    "2024-06-20T01:34:58.567779983Z",
+                    "2024-06-20T01:35:58.567779983Z",
+                    "2024-06-20T01:36:58.567779983Z"
+                  ]
+                },
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Event Size",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 10
+      },
+      "id": 37,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "time",
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select a.time, SUM(a.current_events_size) as current_events_size, SUM(a.lifetime_events_size) as lifetime_events_size,  SUM(a.deleted_events_size) as deleted_events_size from  (select MAX(parseable_events_ingested_size) as current_events_size, MAX(parseable_lifetime_events_ingested_size) as lifetime_events_size,   MAX(parseable_deleted_events_ingested_size) as deleted_events_size, DATE_BIN('$time_step_size', p_timestamp, NOW()) AS time from pmeta where address='$ingestor_url' group by time order by time) a group by a.time order by a.time ",
+          "refId": "A"
+        }
+      ],
+      "title": "Event size - current, lifetime & deleted over time",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "enumConfig": {
+                  "text": [
+                    "2024-06-20T00:37:58.567779983Z",
+                    "2024-06-20T00:38:58.567779983Z",
+                    "2024-06-20T00:39:58.567779983Z",
+                    "2024-06-20T00:40:58.567779983Z",
+                    "2024-06-20T00:41:58.567779983Z",
+                    "2024-06-20T00:42:58.567779983Z",
+                    "2024-06-20T00:43:58.567779983Z",
+                    "2024-06-20T00:44:58.567779983Z",
+                    "2024-06-20T00:45:58.567779983Z",
+                    "2024-06-20T00:46:58.567779983Z",
+                    "2024-06-20T00:47:58.567779983Z",
+                    "2024-06-20T00:48:58.567779983Z",
+                    "2024-06-20T00:49:58.567779983Z",
+                    "2024-06-20T00:50:58.567779983Z",
+                    "2024-06-20T00:51:58.567779983Z",
+                    "2024-06-20T00:52:58.567779983Z",
+                    "2024-06-20T00:53:58.567779983Z",
+                    "2024-06-20T00:54:58.567779983Z",
+                    "2024-06-20T00:55:58.567779983Z",
+                    "2024-06-20T00:56:58.567779983Z",
+                    "2024-06-20T00:57:58.567779983Z",
+                    "2024-06-20T00:58:58.567779983Z",
+                    "2024-06-20T00:59:58.567779983Z",
+                    "2024-06-20T01:00:58.567779983Z",
+                    "2024-06-20T01:01:58.567779983Z",
+                    "2024-06-20T01:02:58.567779983Z",
+                    "2024-06-20T01:03:58.567779983Z",
+                    "2024-06-20T01:04:58.567779983Z",
+                    "2024-06-20T01:05:58.567779983Z",
+                    "2024-06-20T01:06:58.567779983Z",
+                    "2024-06-20T01:07:58.567779983Z",
+                    "2024-06-20T01:08:58.567779983Z",
+                    "2024-06-20T01:09:58.567779983Z",
+                    "2024-06-20T01:10:58.567779983Z",
+                    "2024-06-20T01:11:58.567779983Z",
+                    "2024-06-20T01:12:58.567779983Z",
+                    "2024-06-20T01:13:58.567779983Z",
+                    "2024-06-20T01:14:58.567779983Z",
+                    "2024-06-20T01:15:58.567779983Z",
+                    "2024-06-20T01:16:58.567779983Z",
+                    "2024-06-20T01:17:58.567779983Z",
+                    "2024-06-20T01:18:58.567779983Z",
+                    "2024-06-20T01:19:58.567779983Z",
+                    "2024-06-20T01:20:58.567779983Z",
+                    "2024-06-20T01:21:58.567779983Z",
+                    "2024-06-20T01:22:58.567779983Z",
+                    "2024-06-20T01:23:58.567779983Z",
+                    "2024-06-20T01:24:58.567779983Z",
+                    "2024-06-20T01:25:58.567779983Z",
+                    "2024-06-20T01:26:58.567779983Z",
+                    "2024-06-20T01:27:58.567779983Z",
+                    "2024-06-20T01:28:58.567779983Z",
+                    "2024-06-20T01:29:58.567779983Z",
+                    "2024-06-20T01:30:58.567779983Z",
+                    "2024-06-20T01:31:58.567779983Z",
+                    "2024-06-20T01:32:58.567779983Z",
+                    "2024-06-20T01:33:58.567779983Z",
+                    "2024-06-20T01:34:58.567779983Z",
+                    "2024-06-20T01:35:58.567779983Z",
+                    "2024-06-20T01:36:58.567779983Z"
+                  ]
+                },
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Data Size",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 10
+      },
+      "id": 38,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "time",
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select a.time, SUM(a.current_data_size) as current_data_size, SUM(a.lifetime_data_size) as lifetime_data_size,  SUM(a.deleted_data_size) as deleted_data_size from   (select MAX(parseable_storage_size_data) as current_data_size, MAX(parseable_lifetime_storage_size_data) as lifetime_data_size,    MAX(parseable_deleted_storage_size_data) as deleted_data_size, DATE_BIN('$time_step_size', p_timestamp, NOW()) AS time from pmeta where address='$ingestor_url' group by time order by time) a  group by a.time order by a.time;",
+          "refId": "A"
+        }
+      ],
+      "title": "Data size - current, lifetime & deleted over time",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "enumConfig": {
+                  "text": [
+                    "2024-06-20T00:37:58.567779983Z",
+                    "2024-06-20T00:38:58.567779983Z",
+                    "2024-06-20T00:39:58.567779983Z",
+                    "2024-06-20T00:40:58.567779983Z",
+                    "2024-06-20T00:41:58.567779983Z",
+                    "2024-06-20T00:42:58.567779983Z",
+                    "2024-06-20T00:43:58.567779983Z",
+                    "2024-06-20T00:44:58.567779983Z",
+                    "2024-06-20T00:45:58.567779983Z",
+                    "2024-06-20T00:46:58.567779983Z",
+                    "2024-06-20T00:47:58.567779983Z",
+                    "2024-06-20T00:48:58.567779983Z",
+                    "2024-06-20T00:49:58.567779983Z",
+                    "2024-06-20T00:50:58.567779983Z",
+                    "2024-06-20T00:51:58.567779983Z",
+                    "2024-06-20T00:52:58.567779983Z",
+                    "2024-06-20T00:53:58.567779983Z",
+                    "2024-06-20T00:54:58.567779983Z",
+                    "2024-06-20T00:55:58.567779983Z",
+                    "2024-06-20T00:56:58.567779983Z",
+                    "2024-06-20T00:57:58.567779983Z",
+                    "2024-06-20T00:58:58.567779983Z",
+                    "2024-06-20T00:59:58.567779983Z",
+                    "2024-06-20T01:00:58.567779983Z",
+                    "2024-06-20T01:01:58.567779983Z",
+                    "2024-06-20T01:02:58.567779983Z",
+                    "2024-06-20T01:03:58.567779983Z",
+                    "2024-06-20T01:04:58.567779983Z",
+                    "2024-06-20T01:05:58.567779983Z",
+                    "2024-06-20T01:06:58.567779983Z",
+                    "2024-06-20T01:07:58.567779983Z",
+                    "2024-06-20T01:08:58.567779983Z",
+                    "2024-06-20T01:09:58.567779983Z",
+                    "2024-06-20T01:10:58.567779983Z",
+                    "2024-06-20T01:11:58.567779983Z",
+                    "2024-06-20T01:12:58.567779983Z",
+                    "2024-06-20T01:13:58.567779983Z",
+                    "2024-06-20T01:14:58.567779983Z",
+                    "2024-06-20T01:15:58.567779983Z",
+                    "2024-06-20T01:16:58.567779983Z",
+                    "2024-06-20T01:17:58.567779983Z",
+                    "2024-06-20T01:18:58.567779983Z",
+                    "2024-06-20T01:19:58.567779983Z",
+                    "2024-06-20T01:20:58.567779983Z",
+                    "2024-06-20T01:21:58.567779983Z",
+                    "2024-06-20T01:22:58.567779983Z",
+                    "2024-06-20T01:23:58.567779983Z",
+                    "2024-06-20T01:24:58.567779983Z",
+                    "2024-06-20T01:25:58.567779983Z",
+                    "2024-06-20T01:26:58.567779983Z",
+                    "2024-06-20T01:27:58.567779983Z",
+                    "2024-06-20T01:28:58.567779983Z",
+                    "2024-06-20T01:29:58.567779983Z",
+                    "2024-06-20T01:30:58.567779983Z",
+                    "2024-06-20T01:31:58.567779983Z",
+                    "2024-06-20T01:32:58.567779983Z",
+                    "2024-06-20T01:33:58.567779983Z",
+                    "2024-06-20T01:34:58.567779983Z",
+                    "2024-06-20T01:35:58.567779983Z",
+                    "2024-06-20T01:36:58.567779983Z"
+                  ]
+                },
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "MAX(pmeta.parseable_events_ingested)"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 18
+      },
+      "id": 23,
+      "options": {
+        "displayLabels": [],
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_events_ingested), address from pmeta GROUP BY address",
+          "refId": "A"
+        }
+      ],
+      "title": "Current events ingested per ingestor",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Staging Files",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 18
+      },
+      "id": 33,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "SELECT DATE_BIN('$time_step_size', p_timestamp, NOW()) AS time, MAX(parseable_staging_files) as staging_files_count FROM pmeta  where address='$ingestor_url' GROUP BY time  ORDER BY time;",
+          "refId": "A"
+        }
+      ],
+      "title": "Staging files count over time",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Staging Size",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 18
+      },
+      "id": 34,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "SELECT DATE_BIN('$time_step_size', p_timestamp, NOW()) AS time, MAX(parseable_storage_size_staging) as staging_size FROM pmeta where address='$ingestor_url' GROUP BY time  ORDER BY time;",
+          "refId": "A"
+        }
+      ],
+      "title": "Staging files size over time",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 26
+      },
+      "id": 27,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "text"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "SELECT  MAX(parseable_events_ingested_size) as current_events_size ,  MAX(parseable_storage_size_data) as current_data_size  FROM pmeta where address='$ingestor_url' ;",
+          "refId": "A"
+        }
+      ],
+      "title": "Current event size (JSON) vs stored data size (Parquet)",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 26
+      },
+      "id": 42,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "text"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "SELECT  MAX(parseable_lifetime_events_ingested_size) as lifetime_events_size ,  MAX(parseable_lifetime_storage_size_data) as lifetime_data_size  FROM pmeta where address='$ingestor_url' ;",
+          "refId": "A"
+        }
+      ],
+      "title": "Lifetime event size (JSON) vs stored data size (Parquet)",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 26
+      },
+      "id": 41,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "text"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "SELECT  MAX(parseable_deleted_events_ingested_size) as deleted_events_size ,  MAX(parseable_deleted_storage_size_data) as deleted_data_size  FROM pmeta where address='$ingestor_url' ;",
+          "refId": "A"
+        }
+      ],
+      "title": "Deleted event size (JSON) vs stored data size (Parquet)",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "time"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "bargauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "id": 29,
+      "panels": [],
+      "title": "Event and Data Details",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 0,
+        "y": 31
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_events_ingested) as current_events_ingested_count from pmeta where address = '$ingestor_url'",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Events Ingested for - $ingestor_url",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 8,
+        "y": 31
+      },
+      "id": 21,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_lifetime_events_ingested) as total_lifetime_events_ingested from pmeta where address = '$ingestor_url'",
+          "refId": "A"
+        }
+      ],
+      "title": "Lifetime Events Ingested for - $ingestor_url",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 16,
+        "y": 31
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_deleted_events_ingested) as total_lifetime_events_ingested from pmeta where address = '$ingestor_url'",
+          "refId": "A"
+        }
+      ],
+      "title": "Events Deleted by Retention for - $ingestor_url",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 0,
+        "y": 34
+      },
+      "id": 30,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_events_ingested_size) as current_events_ingested_size from pmeta where address = '$ingestor_url'",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Event Size for - $ingestor_url",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 8,
+        "y": 34
+      },
+      "id": 25,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_lifetime_events_ingested_size) as lifetime_events_ingested_size from pmeta where address = '$ingestor_url'",
+          "refId": "A"
+        }
+      ],
+      "title": "Lifetime Event Size for - $ingestor_url",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 16,
+        "y": 34
+      },
+      "id": 26,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_deleted_events_ingested_size) as deleted_events_ingested_size from pmeta where address = '$ingestor_url'",
+          "refId": "A"
+        }
+      ],
+      "title": "Deleted Event Size for - $ingestor_url",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 0,
+        "y": 37
+      },
+      "id": 24,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_storage_size_data) as current_events_ingested_size from pmeta where address = '$ingestor_url'",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Data Size for - $ingestor_url",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 8,
+        "y": 37
+      },
+      "id": 31,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_lifetime_storage_size_data) as lifetime_events_ingested_size from pmeta where address = '$ingestor_url'",
+          "refId": "A"
+        }
+      ],
+      "title": "Lifetime Data Size for - $ingestor_url",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 16,
+        "y": 37
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select MAX(parseable_deleted_storage_size_data) as deleted_events_ingested_size from pmeta where address = '$ingestor_url'",
+          "refId": "A"
+        }
+      ],
+      "title": "Deleted Data Size for - $ingestor_url",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 4,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      },
+      "id": 35,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select SUM(a.event_size) as event_size from (select MAX(parseable_events_ingested_size) as event_size from pmeta group by address) a",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Event Size (Current)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 4,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 12,
+        "x": 12,
+        "y": 40
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select SUM(a.storage_size) as storage_size from (select MAX(parseable_storage_size_data) as storage_size from pmeta group by address) a",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Data Size (Current)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
+      "id": 39,
+      "panels": [],
+      "title": "Memory Usage",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Resident Memory",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 44
+      },
+      "id": 11,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "colorByField": "process_resident_memory_bytes",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "time",
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 100
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "select DATE_BIN('$time_step_size', p_timestamp, NOW()) AS time, MAX(process_resident_memory_bytes) as process_resident_memory_bytes  from pmeta where address='$ingestor_url' group by time order by time;",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Resident Memory Usage Over Time",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "dateFormat": "hh:mm:ss",
+                "destinationType": "time",
+                "targetField": "minute"
+              },
+              {
+                "destinationType": "other",
+                "targetField": "avg_memory_usage"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "parseable-parseable-datasource",
+        "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "max": 200,
+          "min": 0,
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 44
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "parseable-parseable-datasource",
+            "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+          },
+          "queryText": "SELECT MAX(process_resident_memory_bytes) AS memory_usage FROM pmeta  WHERE address='$ingestor_url' and p_timestamp >= NOW() - INTERVAL '1 minute'",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Memory Usage",
+      "type": "stat"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": [
+    "Parseable"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "datasource": {
+          "type": "parseable-parseable-datasource",
+          "uid": "${DS_PARSEABLE-PARSEABLE-DATASOURCE}"
+        },
+        "definition": "select DISTINCT address from pmeta",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Ingestor URL",
+        "multi": false,
+        "name": "ingestor_url",
+        "options": [],
+        "query": "select DISTINCT address from pmeta",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "15 Minutes",
+          "value": "15 Minutes"
+        },
+        "description": "Choose a value to be passed in DATE_BIN function, few eg. below -\n15 minutes\n1 hour",
+        "hide": 0,
+        "label": "Time Step Size",
+        "name": "time_step_size",
+        "options": [
+          {
+            "selected": true,
+            "text": "15 Minutes",
+            "value": "15 Minutes"
+          }
+        ],
+        "query": "15 minutes",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timeRangeUpdatedDuringEditOrView": false,
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Parseable Meta Dashboard",
+  "uid": "edp8pt5nu8zk0c",
+  "version": 100,
+  "weekStart": ""
+}
