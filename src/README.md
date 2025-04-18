@@ -1,10 +1,10 @@
 # Parseable Datasource for Grafana
 
-This data source plugin allows you to query and visualize log data stored in Parseable server.
+This data source plugin allows you to query, search and visualize telemetry data stored in Parseable server.
 
 ## Pre-requisites
 
-[Parseable server](https://github.com/parseablehq/parseable) setup and receiving logs from your application. Read more on [Parseable documentation](https://www.parseable.io/docs/quick-start).
+[Parseable server](https://github.com/parseablehq/parseable) setup and receiving telemetry data from your application. Read more on [Parseable documentation](https://www.parseable.io/docs/quick-start).
 
 ## Installation
 
@@ -20,13 +20,13 @@ This data source plugin allows you to query and visualize log data stored in Par
 
 ## Usage
 
-Once the plugin is configured with correct Parseable server instance. You can start using it to query logs and visualize them. You can use the query editor to write your own queries.
+Once the plugin is configured with correct Parseable server instance. You can start using it to query, search and visualize telemetry data stored in Parseable server. You can use the query editor to write your own queries.
 
 ### Importing Dashboards
 
 This plugin has a a pre-made dashboard called "Parseable Demo Data". You can find it by navigating to the data sources configuration page, selecting the Parseable data source and clicking on the Dashboards tab.
 
-This dashboard is aimed at visualizing the logs stored in the Parseable demo server. You can use it as a starting point for your own dashboards. To use this dashboard, you will need to configure the data source with the Parseable demo server URL [https://demo.parseable.com](https://demo.parseable.com:443) and credentials `parseable`, `parseable`.
+This dashboard is aimed at visualizing the telemetry data stored in the Parseable demo server. You can use it as a starting point for your own dashboards. To use this dashboard, you will need to configure the data source with the Parseable demo server URL [https://demo.parseable.com](https://demo.parseable.com:443) and credentials `admin`, `admin`.
 
 ## Screenshots
 
