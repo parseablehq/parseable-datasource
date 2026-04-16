@@ -10,10 +10,10 @@
   "alerting": true,
   "executable": "gpx_datasource_http_backend",
   "info": {
-    "description":  "Parseable is an open source, Kubernetes native, log storage and observability platform. This plugin allows you to visualize your Parseable logs in Grafana.",
+    "description": "Parseable is an open source, Kubernetes native, log storage and observability platform. This plugin allows you to visualize your Parseable logs in Grafana.",
     "author": {
       "name": "Parseable Team",
-      "url": "https://parseable.io"
+      "url": "https://parseable.com"
     },
     "keywords": ["datasource", "logging", "log observability", "log analytics", "parseable"],
     "logos": {
@@ -21,13 +21,13 @@
       "large": "https://github.com/parseablehq/.github/blob/main/images/logo.svg"
     },
     "links": [
-      {"name": "GitHub", "url": "https://github.com/parseablehq/parseable-datasource"},
-      {"name": "Website", "url": "https://parseable.io"}
+      { "name": "GitHub", "url": "https://github.com/parseablehq/parseable-datasource" },
+      { "name": "Website", "url": "https://parseable.io" }
     ],
     "screenshots": [
-      {"name": "Query Configuration", "path": "img/configuration.png"},
-      {"name": "Log Explorer", "path": "img/log-view-text.png"},
-      {"name": "Log Dashboard", "path": "img/log-visualisation.png"}
+      { "name": "Query Configuration", "path": "img/configuration.png" },
+      { "name": "Log Explorer", "path": "img/log-view-text.png" },
+      { "name": "Log Dashboard", "path": "img/log-visualisation.png" }
     ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
@@ -45,7 +45,7 @@
     }
   ],
   "dependencies": {
-    "grafanaDependency": ">=9.0.0",
+    "grafanaDependency": ">=10.0.0",
     "plugins": []
   }
 }

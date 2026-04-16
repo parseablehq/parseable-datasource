@@ -10,24 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v4
         with:
-          node-version: "14.x"
+          node-version: "20.x"
 
       - name: Setup Go environment
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: "1.16"
+          go-version: "1.23"
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache yarn cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         id: cache-yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -37,15 +37,15 @@ jobs:
 
       - name: Cache node_modules
         id: cache-node-modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-nodemodules-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-
+            ${{ runner.os }}-nodemodules-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile;
+        run: yarn install --frozen-lockfile
         if: |
           steps.cache-yarn-cache.outputs.cache-hit != 'true' ||
           steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -58,19 +58,19 @@ jobs:
         run: |
           if [ -f "Magefile.go" ]
           then
-            echo "::set-output name=has-backend::true"
+            echo "has-backend=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Test backend
         if: steps.check-for-backend.outputs.has-backend == 'true'
-        uses: magefile/mage-action@v1
+        uses: magefile/mage-action@v3
         with:
           version: latest
           args: coverage
 
       - name: Build backend
         if: steps.check-for-backend.outputs.has-backend == 'true'
-        uses: magefile/mage-action@v1
+        uses: magefile/mage-action@v3
         with:
           version: latest
           args: buildAll
@@ -83,27 +83,26 @@ jobs:
       - name: Get plugin metadata
         id: metadata
         run: |
-          sudo apt-get install jq
+          GRAFANA_PLUGIN_ID=$(jq -r .id dist/plugin.json)
+          GRAFANA_PLUGIN_VERSION=$(jq -r .info.version dist/plugin.json)
+          GRAFANA_PLUGIN_TYPE=$(jq -r .type dist/plugin.json)
+          GRAFANA_PLUGIN_ARTIFACT="${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip"
+          GRAFANA_PLUGIN_ARTIFACT_CHECKSUM="${GRAFANA_PLUGIN_ARTIFACT}.md5"
 
-          export GRAFANA_PLUGIN_ID=$(cat dist/plugin.json | jq -r .id)
-          export GRAFANA_PLUGIN_VERSION=$(cat dist/plugin.json | jq -r .info.version)
-          export GRAFANA_PLUGIN_TYPE=$(cat dist/plugin.json | jq -r .type)
-          export GRAFANA_PLUGIN_ARTIFACT=${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip
-          export GRAFANA_PLUGIN_ARTIFACT_CHECKSUM=${GRAFANA_PLUGIN_ARTIFACT}.md5
-
-          echo "::set-output name=plugin-id::${GRAFANA_PLUGIN_ID}"
-          echo "::set-output name=plugin-version::${GRAFANA_PLUGIN_VERSION}"
-          echo "::set-output name=plugin-type::${GRAFANA_PLUGIN_TYPE}"
-          echo "::set-output name=archive::${GRAFANA_PLUGIN_ARTIFACT}"
-          echo "::set-output name=archive-checksum::${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}"
-
-          echo ::set-output name=github-tag::${GITHUB_REF#refs/*/}
+          {
+            echo "plugin-id=${GRAFANA_PLUGIN_ID}"
+            echo "plugin-version=${GRAFANA_PLUGIN_VERSION}"
+            echo "plugin-type=${GRAFANA_PLUGIN_TYPE}"
+            echo "archive=${GRAFANA_PLUGIN_ARTIFACT}"
+            echo "archive-checksum=${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}"
+            echo "github-tag=${GITHUB_REF#refs/*/}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Read changelog
         id: changelog
         run: |
           awk '/^## / {s++} s == 1 {print}' CHANGELOG.md > release_notes.md
-          echo "::set-output name=path::release_notes.md"
+          echo "path=release_notes.md" >> "$GITHUB_OUTPUT"
 
       - name: Check package version
         run: if [ "v${{ steps.metadata.outputs.plugin-version }}" != "${{ steps.metadata.outputs.github-tag }}" ]; then printf "\033[0;31mPlugin version doesn't match tag name\033[0m\n"; exit 1; fi
@@ -114,48 +113,26 @@ jobs:
           mv dist ${{ steps.metadata.outputs.plugin-id }}
           zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
           md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
-          echo "::set-output name=checksum::$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)"
+          echo "checksum=$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
       - name: Lint plugin
         run: |
           git clone https://github.com/grafana/plugin-validator
-          pushd ./plugin-validator/pkg/cmd/plugincheck
+          pushd ./plugin-validator/pkg/cmd/plugincheck2
           go install
           popd
-          plugincheck ${{ steps.metadata.outputs.archive }}
+          plugincheck2 -config ./plugin-validator/config/default.yaml ${{ steps.metadata.outputs.archive }}
 
       - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body_path: ${{ steps.changelog.outputs.path }}
-          draft: true
-
-      - name: Add plugin to release
-        id: upload-plugin-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.metadata.outputs.archive }}
-          asset_name: ${{ steps.metadata.outputs.archive }}
-          asset_content_type: application/zip
-
-      - name: Add checksum to release
-        id: upload-checksum-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.metadata.outputs.archive-checksum }}
-          asset_name: ${{ steps.metadata.outputs.archive-checksum }}
-          asset_content_type: text/plain
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.metadata.outputs.github-tag }}" \
+            --title "Release ${{ steps.metadata.outputs.github-tag }}" \
+            --notes-file "${{ steps.changelog.outputs.path }}" \
+            --draft \
+            "${{ steps.metadata.outputs.archive }}" \
+            "${{ steps.metadata.outputs.archive-checksum }}"
 
       - name: Publish to Grafana.com
         run: |

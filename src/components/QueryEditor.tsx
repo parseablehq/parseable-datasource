@@ -1,10 +1,8 @@
 import React, { ComponentType, ChangeEvent, useState } from 'react';
-import { LegacyForms, AsyncSelect, InlineField, InlineFieldRow, SeriesTable, Label } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue, GraphSeriesValue } from '@grafana/data';
+import { AsyncSelect, InlineField, InlineFieldRow, Input, SeriesTable, Label } from '@grafana/ui';
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { SchemaFields, MyDataSourceOptions, MyQuery } from '../types';
-
-const { FormField } = LegacyForms;
 
 interface Props extends QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions> {
   payload?: string;
@@ -29,7 +27,7 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
 
   const [selectedStream, setSelectedStream] = useState<SelectableValue<string>>();
   const [schema = '', setSchema] = React.useState<string | number>();
-  const [count = '', setEventCount] = React.useState<string | GraphSeriesValue>();
+  const [count = '', setEventCount] = React.useState<string | number | null>();
   const [jsonsize = '', setJsonSize] = React.useState<string | number>();
   const [parquetsize = '', setParquetSize] = React.useState<string | number>();
   const [streamname = '', setStreamName] = React.useState<string | number>();
@@ -176,14 +174,12 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
       </InlineFieldRow>
 
       <br></br>
-      <FormField
-        labelWidth={12}
-        inputWidth={100}
-        value={queryText || ''}
-        onChange={onQueryTextChange}
-        label="SQL Query"
-        tooltip="Enter the SQL query here (use column names as above)"
-      />
+      <InlineField label="SQL Query" labelWidth={12} tooltip="Enter the SQL query here (use column names as above)" grow>
+        <Input
+          value={queryText || ''}
+          onChange={onQueryTextChange}
+        />
+      </InlineField>
     </>
   );
 };

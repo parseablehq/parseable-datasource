@@ -1,0 +1,19 @@
+# This file is for LOCAL DEVELOPMENT only.
+# It auto-provisions a Parseable datasource when running Grafana via docker-compose.
+# Not used in production or release builds.
+#
+# Update the url, basicAuthUser, and basicAuthPassword to match your Parseable instance.
+apiVersion: 1
+datasources:
+  - name: Parseable
+    type: parseable-parseable-datasource
+    access: proxy
+    url: https://staging.parseable.com:8000
+    basicAuth: true
+    basicAuthUser: admin
+    secureJsonData:
+      basicAuthPassword: admin
+    jsonData:
+      url: https://staging.parseable.com:8000
+    isDefault: true
+    editable: true
