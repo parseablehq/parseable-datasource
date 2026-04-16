@@ -1,6 +1,5 @@
 node_modules
 dist
-releases
 .DS_Store
 .eslintcache
 package-lock.json
