@@ -9,7 +9,6 @@ import {
   DataQueryRequest,
   DataQueryResponse,
   DataSourceInstanceSettings,
-  MutableDataFrame,
   DataFrame,
   FieldType,
   guessFieldTypeFromValue,
@@ -59,11 +58,13 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
 
   async doRequest(query: MyQuery) {
     const routePath = '/api/v1';
-    const result = await getBackendSrv().datasourceRequest({
-      method: 'GET',
-      url: this.url + routePath + '/readiness',
-      params: query,
-    });
+    const result = await lastValueFrom(
+      getBackendSrv().fetch({
+        method: 'GET',
+        url: this.url + routePath + '/readiness',
+        params: query,
+      })
+    );
     return result;
   }
 
@@ -160,7 +161,7 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
       this.query(options).subscribe({
         next: (response: DataQueryResponse) => {
           const values: MetricFindValue[] = response.data
-            .map((dataFrame: DataFrame) => dataFrame.fields[0].values.toArray())
+            .map((dataFrame: DataFrame) => dataFrame.fields[0].values)
             .flat()
             .map((value: any) => ({ text: value }));
 
@@ -174,12 +175,11 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
   }
 
   async arrayToDataFrame(array: any[], streamName?: string | null, query?: string): Promise<DataFrame> {
-    let dataFrame: MutableDataFrame = new MutableDataFrame();
-    let isHeadersMadeFromData = false;
+    let fieldDefs: Array<{ name: string; type: FieldType }> = [];
 
     const setHeadersFromData = () => {
       if (array.length > 0) {
-        const fields = Object.keys(array[0]).map((field) => {
+        fieldDefs = Object.keys(array[0]).map((field) => {
           let fieldType = guessFieldTypeFromValue(array[0][field]);
           // p_timestamp is always a time field present in the log
           // stream as parseable adds it to the log event
@@ -188,8 +188,6 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
           }
           return { name: field, type: fieldType };
         });
-        dataFrame = new MutableDataFrame({ fields });
-        isHeadersMadeFromData = true;
       }
     };
 
@@ -199,7 +197,7 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
       const streamSchema = await this.getStreamSchema(streamName);
       const schemaFields: SchemaFields[] | undefined = streamSchema.fields;
       if (schemaFields && schemaFields.length > 0) {
-        const headers = schemaFields.map((field) => {
+        fieldDefs = schemaFields.map((field) => {
           const grafanaDatatype = (() => {
             if (field.name === 'p_timestamp') {
               return FieldType.time;
@@ -219,7 +217,6 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
           })();
           return { name: field.name, type: grafanaDatatype };
         });
-        dataFrame = new MutableDataFrame({ fields: headers });
       } else {
         setHeadersFromData();
       }
@@ -227,18 +224,27 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
       setHeadersFromData();
     }
 
-    array.forEach((row) => {
-      if (isHeadersMadeFromData) {
-        dataFrame.appendRow(Object.values(row));
-      } else {
-        const keys = dataFrame.fields.map((field) => field.name);
-        const defaultObj = keys.reduce((obj, key) => ({ ...obj, [key]: null }), {});
-        const sanitizedObj = { ...defaultObj, ...row };
-        dataFrame.appendRow(Object.values(sanitizedObj));
-      }
+    // Build value arrays for each field
+    const values: Record<string, any[]> = {};
+    fieldDefs.forEach((f) => {
+      values[f.name] = [];
     });
 
-    return dataFrame;
+    array.forEach((row) => {
+      fieldDefs.forEach((f) => {
+        values[f.name].push(row[f.name] ?? null);
+      });
+    });
+
+    return {
+      fields: fieldDefs.map((f) => ({
+        name: f.name,
+        type: f.type,
+        values: values[f.name] || [],
+        config: {},
+      })),
+      length: array.length,
+    };
   }
 
   doFetch<T>(options: BackendSrvRequest) {

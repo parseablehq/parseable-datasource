@@ -6,9 +6,9 @@ services:
     build:
       context: ./.config
       args:
-        grafana_version: ${GRAFANA_VERSION:-9.2.5}
+        grafana_version: ${GRAFANA_VERSION:-latest}
     ports:
-      - 3000:3000/tcp
+      - 3010:3000/tcp
     volumes:
       - ./dist:/var/lib/grafana/plugins/parseable-parseable-datasource
       - ./provisioning:/etc/grafana/provisioning
