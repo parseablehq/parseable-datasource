@@ -10,6 +10,13 @@ declare module '@grafana/runtime' {
 export interface MyQuery extends DataQuery {
   queryText: string;
   editorMode?: QueryEditorMode;
+  stream?: string;
+  filters?: FilterCondition[];
+  selectedColumns?: string[];
+  /** Field to monitor in alert/monitor mode (empty string = "All rows (*)") */
+  monitorField?: string;
+  /** Aggregate function for monitor mode: COUNT, SUM, AVG, MIN, MAX */
+  monitorAggregate?: string;
   alias?: string;
   target?: string;
   payload: string | { [key: string]: any };
@@ -68,9 +75,14 @@ export interface StreamStatsResponse {
   message?: string;
 }
 
+/**
+ * A single field from the Parseable schema response.
+ * `data_type` can be a plain string ("Utf8") or an object ({"Timestamp": ["Nanosecond", null]}).
+ * Always use `parseType()` from utils/fieldTypes to normalize it.
+ */
 export interface SchemaFields {
   name: string;
-  data_type?: string;
+  data_type: any;
   nullable?: boolean;
   dict_id?: number;
   dict_is_ordered?: boolean;
@@ -94,4 +106,15 @@ export interface StreamList {
   name?: string;
 }
 
-export type QueryEditorMode = "code" | "builder";
+export type QueryEditorMode = "code" | "builder" | "monitor";
+
+/**
+ * A single filter condition — matches Prism's FilterType structure.
+ * `type` is the simplified field type from parseType().
+ */
+export interface FilterCondition {
+  column: string;
+  operator: string;
+  value: string | number | boolean | null;
+  type: string;
+}

@@ -27,22 +27,8 @@ import {
   StreamStatsResponse,
   SchemaFields,
 } from './types';
-
-const numberType = [
-  'Int8',
-  'Int16',
-  'Int32',
-  'Int64',
-  'UInt8',
-  'UInt16',
-  'UInt32',
-  'UInt64',
-  'Float16',
-  'Float32',
-  'Float64',
-];
-const stringType = ['Utf8', 'LargeUtf8'];
-const timeType = ['Date32', 'Date64', 'Timestamp', 'Time32', 'Time64'];
+import { parseType } from './utils/fieldTypes';
+import { sanitizeSql } from './utils/sqlNormalize';
 
 export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptions> {
   url: string;
@@ -96,8 +82,16 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
       const start = range!.from;
       const end = range!.to;
 
-      const calls = options.targets.map((target) => {
-        const query = getTemplateSrv().replace(target.queryText, options.scopedVars, this.formatter);
+      const validTargets = options.targets.filter((target) => target.queryText && target.queryText.trim());
+      if (validTargets.length === 0) {
+        observer.next({ data: [] });
+        observer.complete();
+        return;
+      }
+
+      const calls = validTargets.map((target) => {
+        const rawQuery = getTemplateSrv().replace(target.queryText, options.scopedVars, this.formatter);
+        const query = sanitizeSql(rawQuery);
 
         const request = {
           query,
@@ -117,7 +111,8 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
               return this.arrayToDataFrame(response.data, streamName, request.query);
             }),
             catchError((err) => {
-              throw new Error(err.data.message);
+              const msg = err?.data?.message || err?.statusText || err?.message || 'Query failed';
+              throw new Error(msg);
             })
           )
         );
@@ -174,6 +169,24 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     });
   }
 
+  /**
+   * Maps a simplified parseType result to a Grafana FieldType.
+   */
+  private parsedTypeToGrafana(pt: string): FieldType {
+    switch (pt) {
+      case 'number':
+        return FieldType.number;
+      case 'timestamp':
+        return FieldType.time;
+      case 'boolean':
+        return FieldType.boolean;
+      case 'text':
+        return FieldType.string;
+      default:
+        return FieldType.other;
+    }
+  }
+
   async arrayToDataFrame(array: any[], streamName?: string | null, query?: string): Promise<DataFrame> {
     let fieldDefs: Array<{ name: string; type: FieldType }> = [];
 
@@ -198,24 +211,10 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
       const schemaFields: SchemaFields[] | undefined = streamSchema.fields;
       if (schemaFields && schemaFields.length > 0) {
         fieldDefs = schemaFields.map((field) => {
-          const grafanaDatatype = (() => {
-            if (field.name === 'p_timestamp') {
-              return FieldType.time;
-            } else if (!field?.data_type) {
-              return FieldType.other;
-            } else if (field.data_type === 'Boolean') {
-              return FieldType.boolean;
-            } else if (numberType.indexOf(field.data_type) !== -1) {
-              return FieldType.number;
-            } else if (stringType.indexOf(field.data_type) !== -1) {
-              return FieldType.string;
-            } else if (timeType.indexOf(field.data_type) !== -1) {
-              return FieldType.time;
-            } else {
-              return FieldType.other;
-            }
-          })();
-          return { name: field.name, type: grafanaDatatype };
+          if (field.name === 'p_timestamp') {
+            return { name: field.name, type: FieldType.time };
+          }
+          return { name: field.name, type: this.parsedTypeToGrafana(parseType(field.data_type)) };
         });
       } else {
         setHeadersFromData();
@@ -306,6 +305,43 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
       );
     }
     return { fields: [] };
+  }
+
+  async getDistinctValues(streamName: string, columnName: string, limit = 50): Promise<string[]> {
+    const query = `SELECT DISTINCT "${columnName}" FROM ${streamName} LIMIT ${limit}`;
+    const now = new Date();
+    const from = new Date();
+    from.setDate(now.getDate() - 7);
+
+    try {
+      return await lastValueFrom(
+        this.doFetch<any[]>({
+          url: this.url + '/api/v1/query',
+          data: {
+            query,
+            startTime: from.toISOString(),
+            endTime: now.toISOString(),
+            send_null: true,
+          },
+          method: 'POST',
+        }).pipe(
+          map((res) => {
+            if (isArray(res.data)) {
+              return res.data
+                .map((row) => {
+                  const val = row[columnName];
+                  return val != null ? String(val) : '';
+                })
+                .filter(Boolean);
+            }
+            return [];
+          }),
+          catchError(() => of([]))
+        )
+      );
+    } catch {
+      return [];
+    }
   }
 
   async testDatasource() {
