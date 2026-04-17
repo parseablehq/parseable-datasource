@@ -24,8 +24,9 @@ import {
   QueryEditorMode,
   StreamList,
   StreamSchemaResponse,
-  StreamStatsResponse,
+  StreamInfoResponse,
   SchemaFields,
+  MetricInfo,
 } from './types';
 import { parseType } from './utils/fieldTypes';
 import { sanitizeSql } from './utils/sqlNormalize';
@@ -267,11 +268,11 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     );
   }
 
-  async getStreamStats(streamName: string): Promise<StreamStatsResponse> {
+  async getStreamInfo(streamName: string): Promise<StreamInfoResponse> {
     if (streamName) {
       return lastValueFrom(
         this.doFetch({
-          url: this.url + '/api/v1/logstream/' + streamName + '/stats',
+          url: this.url + '/api/prism/v1/logstream/' + streamName + '/info',
           method: 'GET',
         }).pipe(
           map((response) => (typeof response.data === 'object' && !isNull(response.data) ? response.data : {})),
@@ -288,23 +289,45 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
   }
 
   async getStreamSchema(streamName: string): Promise<StreamSchemaResponse> {
-    if (streamName) {
-      return lastValueFrom(
-        this.doFetch({
-          url: this.url + '/api/v1/logstream/' + streamName + '/schema',
-          method: 'GET',
+    const info = await this.getStreamInfo(streamName);
+    return info.schema ?? { fields: [] };
+  }
+
+  async getMetricNames(streamName: string): Promise<MetricInfo[]> {
+    const sql = `SELECT COUNT(*) AS count, "metric_name", "metric_description", "metric_type" FROM "${streamName}" WHERE "metric_type" IN ('sum', 'gauge', 'summary', 'histogram', 'exponential_histogram') GROUP BY "metric_name", "metric_description", "metric_type" ORDER BY count DESC, "metric_name"`;
+    const now = new Date();
+    const from = new Date();
+    from.setDate(now.getDate() - 7);
+
+    try {
+      return await lastValueFrom(
+        this.doFetch<any[]>({
+          url: this.url + '/api/v1/query',
+          data: {
+            query: sql,
+            startTime: from.toISOString(),
+            endTime: now.toISOString(),
+            send_null: true,
+          },
+          method: 'POST',
         }).pipe(
-          map((response) => (typeof response.data === 'object' && !isNull(response.data) ? response.data : {})),
-          catchError((err) => {
-            return of({
-              status: 'error',
-              message: err.statusText,
-            });
-          })
+          map((res) => {
+            if (isArray(res.data)) {
+              return res.data.map((row) => ({
+                metric_name: row.metric_name || '',
+                metric_description: row.metric_description || '',
+                metric_type: row.metric_type || '',
+                count: row.count || 0,
+              }));
+            }
+            return [];
+          }),
+          catchError(() => of([]))
         )
       );
+    } catch {
+      return [];
     }
-    return { fields: [] };
   }
 
   async getDistinctValues(streamName: string, columnName: string, limit = 50): Promise<string[]> {

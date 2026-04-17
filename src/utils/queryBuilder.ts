@@ -206,6 +206,62 @@ export function buildMonitorSql(
 }
 
 // ---------------------------------------------------------------------------
+// Build an aggregate SQL query for metrics stream alerting
+// ---------------------------------------------------------------------------
+
+export function buildMetricsAlertSql(
+  stream: string,
+  metricName: string,
+  metricType: string,
+  aggregate: string,
+  filters: FilterCondition[],
+  fieldTypeMap: FieldTypeMap
+): string {
+  const agg = (aggregate || 'AVG').toUpperCase();
+
+  // Value expression depends on metric type
+  let valueExpr: string;
+  let aliasName: string;
+  if (metricType === 'histogram') {
+    valueExpr = 'SUM("data_point_sum") / NULLIF(SUM("data_point_count"), 0)';
+    aliasName = 'avg_value';
+  } else {
+    // gauge, sum, exponential_histogram, and others use data_point_value
+    valueExpr = `${agg}("data_point_value")`;
+    aliasName = `${agg.toLowerCase()}_value`;
+  }
+
+  const whereConditions: string[] = [];
+  whereConditions.push(`"metric_name" = '${escapeSqlLiteral(metricName)}'`);
+
+  if (metricType === 'summary' || metricType === 'histogram') {
+    whereConditions.push(`"metric_type" = '${escapeSqlLiteral(metricType)}'`);
+  }
+
+  // User-defined filters
+  if (filters.length > 0) {
+    const filterConditions = filters
+      .map((f) => {
+        const coerced = isNullOperator(f.operator)
+          ? null
+          : coerceValueByType(f.type || fieldTypeMap[f.column], f.value);
+
+        return buildSingleFilterCondition({
+          column: f.column,
+          operator: f.operator,
+          value: coerced,
+          type: f.type || fieldTypeMap[f.column] || 'text',
+        });
+      })
+      .filter(Boolean);
+
+    whereConditions.push(...filterConditions);
+  }
+
+  return `SELECT ${valueExpr} AS "${aliasName}" FROM ${quoteStream(stream)} WHERE ${whereConditions.join(' AND ')}`;
+}
+
+// ---------------------------------------------------------------------------
 // Build a full SQL query from builder state
 // ---------------------------------------------------------------------------
 

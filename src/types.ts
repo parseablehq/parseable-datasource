@@ -17,9 +17,20 @@ export interface MyQuery extends DataQuery {
   monitorField?: string;
   /** Aggregate function for monitor mode: COUNT, SUM, AVG, MIN, MAX */
   monitorAggregate?: string;
+  /** Selected metric name for metrics stream alerting */
+  monitorMetric?: string;
+  /** Type of the selected metric (gauge, sum, histogram, summary) */
+  monitorMetricType?: string;
   alias?: string;
   target?: string;
   payload: string | { [key: string]: any };
+}
+
+export interface MetricInfo {
+  metric_name: string;
+  metric_description: string;
+  metric_type: string;
+  count: number;
 }
 
 /**
@@ -71,6 +82,28 @@ export interface StreamStatsResponse {
   storage?: Storage;
   time?: string;
   stream?: string;
+  status?: string;
+  message?: string;
+}
+
+export interface StreamInfoData {
+  createdAt?: string;
+  firstEventAt?: string;
+  latestEventAt?: string;
+  streamType?: string;
+  logSource?: Array<{
+    log_source_format?: string;
+    fields?: string[];
+  }>;
+  telemetryType?: string;
+  hotTierEnabled?: boolean;
+}
+
+export interface StreamInfoResponse {
+  info?: StreamInfoData;
+  schema?: StreamSchemaResponse;
+  stats?: StreamStatsResponse;
+  retention?: any[];
   status?: string;
   message?: string;
 }

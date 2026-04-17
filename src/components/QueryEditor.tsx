@@ -3,9 +3,17 @@ import { css } from '@emotion/css';
 import { CoreApp, GrafanaTheme2, QueryEditorProps, SelectableValue } from '@grafana/data';
 import { AsyncSelect, InlineField, RadioButtonGroup, Select, useStyles2, MultiSelect } from '@grafana/ui';
 import { DataSource } from '../datasource';
-import { SchemaFields, MyDataSourceOptions, MyQuery, FilterCondition, QueryEditorMode, StreamStatsResponse } from '../types';
+import {
+  SchemaFields,
+  MyDataSourceOptions,
+  MyQuery,
+  FilterCondition,
+  QueryEditorMode,
+  StreamStatsResponse,
+  MetricInfo,
+} from '../types';
 import { buildFieldTypeMap, FieldTypeMap, typeDisplayName, getAggregateOptions } from '../utils/fieldTypes';
-import { buildSqlFromFilters, buildMonitorSql } from '../utils/queryBuilder';
+import { buildSqlFromFilters, buildMonitorSql, buildMetricsAlertSql } from '../utils/queryBuilder';
 import { FilterBuilder } from './FilterBuilder';
 import { StreamInfoPanel } from './StreamInfoPanel';
 
@@ -25,7 +33,7 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   const styles = useStyles2(getStyles);
 
   const isAlerting = app === CoreApp.UnifiedAlerting || app === CoreApp.CloudAlerting;
-  const editorMode = isAlerting ? 'monitor' : (query.editorMode || datasource.defaultEditorMode || 'builder');
+  const editorMode = isAlerting ? 'monitor' : query.editorMode || datasource.defaultEditorMode || 'builder';
   const filters = query.filters || [];
   const selectedColumns = query.selectedColumns || [];
 
@@ -34,6 +42,8 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   );
   const [schemaFields, setSchemaFields] = useState<SchemaFields[]>([]);
   const [stats, setStats] = useState<StreamStatsResponse>({});
+  const [telemetryType, setTelemetryType] = useState<string | undefined>();
+  const [metricsList, setMetricsList] = useState<MetricInfo[]>([]);
 
   // Build fieldTypeMap and fieldNames from schema (like Prism's setStreamSchema)
   const fieldTypeMap: FieldTypeMap = useMemo(() => buildFieldTypeMap(schemaFields), [schemaFields]);
@@ -49,30 +59,43 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
     );
   }, [datasource]);
 
-  // Load schema when stream changes
+  // Load stream info (schema + stats + info) when stream changes
   useEffect(() => {
     const streamName = selectedStream?.value;
     if (streamName) {
       datasource
-        .getStreamSchema(streamName)
+        .getStreamInfo(streamName)
         .then((result) => {
-          if (result.fields) {
-            setSchemaFields(result.fields as SchemaFields[]);
+          if (result.schema?.fields) {
+            setSchemaFields(result.schema.fields as SchemaFields[]);
+          } else {
+            setSchemaFields([]);
+          }
+          setStats(result.stats ?? {});
+          const tType = result.info?.telemetryType;
+          setTelemetryType(tType);
+
+          // Fetch metric names for metrics streams
+          if (tType === 'metrics') {
+            datasource
+              .getMetricNames(streamName)
+              .then(setMetricsList)
+              .catch(() => setMetricsList([]));
+          } else {
+            setMetricsList([]);
           }
         })
-        .catch(() => setSchemaFields([]));
+        .catch(() => {
+          setSchemaFields([]);
+          setStats({});
+          setTelemetryType(undefined);
+          setMetricsList([]);
+        });
     } else {
       setSchemaFields([]);
-    }
-  }, [datasource, selectedStream?.value]);
-
-  // Load stats when stream changes
-  useEffect(() => {
-    const streamName = selectedStream?.value;
-    if (streamName) {
-      datasource.getStreamStats(streamName).then(setStats).catch(() => setStats({}));
-    } else {
       setStats({});
+      setTelemetryType(undefined);
+      setMetricsList([]);
     }
   }, [datasource, selectedStream?.value]);
 
@@ -89,9 +112,12 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
         newQuery.queryText = buildSqlFromFilters(streamName, [], [], fieldTypeMap);
       } else if (editorMode === 'monitor') {
         newQuery.filters = [];
+        // Reset both monitor types; the correct UI will render once info loads
         newQuery.monitorField = ALL_ROWS_VALUE;
         newQuery.monitorAggregate = 'COUNT';
-        newQuery.queryText = buildMonitorSql(streamName, ALL_ROWS_VALUE, 'COUNT', [], fieldTypeMap);
+        newQuery.monitorMetric = undefined;
+        newQuery.monitorMetricType = undefined;
+        newQuery.queryText = '';
       }
       onChange(newQuery);
     },
@@ -191,11 +217,64 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
     [query, onChange, selectedStream, fieldTypeMap]
   );
 
+  const isMetricsStream = telemetryType === 'metrics';
+
+  // -- Metrics alert handlers --
+
+  const metricsOptions = useMemo((): Array<SelectableValue<string>> => {
+    return metricsList.map((m) => ({
+      label: m.metric_name,
+      value: m.metric_name,
+      description: `${m.metric_type}${m.metric_description ? ' - ' + m.metric_description : ''}`,
+    }));
+  }, [metricsList]);
+
+  const onMetricChange = useCallback(
+    (v: SelectableValue<string>) => {
+      if (!selectedStream?.value) {
+        return;
+      }
+      const metricName = v.value || '';
+      const metric = metricsList.find((m) => m.metric_name === metricName);
+      const metricType = metric?.metric_type || '';
+      const sql = buildMetricsAlertSql(selectedStream.value, metricName, metricType, 'AVG', filters, fieldTypeMap);
+      onChange({ ...query, monitorMetric: metricName, monitorMetricType: metricType, queryText: sql });
+    },
+    [query, onChange, selectedStream, filters, fieldTypeMap, metricsList]
+  );
+
+  const onMetricsFiltersChange = useCallback(
+    (newFilters: FilterCondition[]) => {
+      if (!selectedStream?.value) {
+        return;
+      }
+      const metricName = query.monitorMetric || '';
+      const metricType = query.monitorMetricType || '';
+      const sql = buildMetricsAlertSql(selectedStream.value, metricName, metricType, 'AVG', newFilters, fieldTypeMap);
+      onChange({ ...query, filters: newFilters, queryText: sql });
+    },
+    [query, onChange, selectedStream, fieldTypeMap]
+  );
+
+  // Auto-select first metric when metrics list loads and none is selected
+  useEffect(() => {
+    if (isAlerting && isMetricsStream && metricsList.length > 0 && !query.monitorMetric && selectedStream?.value) {
+      const first = metricsList[0];
+      const sql = buildMetricsAlertSql(
+        selectedStream.value,
+        first.metric_name,
+        first.metric_type,
+        'AVG',
+        filters,
+        fieldTypeMap
+      );
+      onChange({ ...query, monitorMetric: first.metric_name, monitorMetricType: first.metric_type, queryText: sql });
+    }
+  }, [isAlerting, isMetricsStream, metricsList, selectedStream?.value]);
+
   // Monitor field options: "All rows (*)" + all non-internal fields
   const monitorFieldOptions = useMemo(() => {
-    const options: Array<SelectableValue<string>> = [
-      { label: 'All rows (*)', value: ALL_ROWS_VALUE },
-    ];
+    const options: Array<SelectableValue<string>> = [{ label: 'All rows (*)', value: ALL_ROWS_VALUE }];
     fieldNames
       .filter((name) => !name.startsWith('p_'))
       .forEach((name) => {
@@ -246,11 +325,7 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
     <div className={styles.wrapper}>
       {/* Stream Info Sidebar */}
       {!isAlerting && selectedStream?.value && (
-        <StreamInfoPanel
-          fieldNames={fieldNames}
-          fieldTypeMap={fieldTypeMap}
-          stats={stats}
-        />
+        <StreamInfoPanel fieldNames={fieldNames} fieldTypeMap={fieldTypeMap} stats={stats} />
       )}
 
       {/* Main Query Area */}
@@ -313,15 +388,57 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
           </div>
         )}
 
-        {/* Monitor Mode */}
-        {editorMode === 'monitor' && selectedStream?.value && (
+        {/* Monitor Mode — Metrics streams */}
+        {editorMode === 'monitor' && selectedStream?.value && isMetricsStream && (
+          <div className={styles.builderArea}>
+            {/* Metric + Aggregate row */}
+            <div className={styles.monitorRow}>
+              <InlineField label="Metric" labelWidth={8}>
+                <Select
+                  options={metricsOptions}
+                  value={metricsOptions.find((o) => o.value === query.monitorMetric) || metricsOptions[0]}
+                  onChange={onMetricChange}
+                  width={40}
+                  menuPlacement="bottom"
+                  isLoading={metricsList.length === 0}
+                  placeholder="Select a metric"
+                />
+              </InlineField>
+            </div>
+
+            {/* Filters */}
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>Filters</div>
+              <FilterBuilder
+                filters={filters}
+                fieldTypeMap={fieldTypeMap}
+                fieldNames={fieldNames}
+                streamName={selectedStream.value}
+                datasource={datasource}
+                onChange={onMetricsFiltersChange}
+              />
+            </div>
+
+            {/* SQL Preview */}
+            <div className={styles.sqlPreviewSection}>
+              <div className={styles.sectionLabel}>Generated SQL</div>
+              <pre className={styles.sqlPreviewText}>{query.queryText || ''}</pre>
+            </div>
+          </div>
+        )}
+
+        {/* Monitor Mode — Non-metrics streams */}
+        {editorMode === 'monitor' && selectedStream?.value && !isMetricsStream && (
           <div className={styles.builderArea}>
             {/* Field + Aggregate row */}
             <div className={styles.monitorRow}>
               <InlineField label="Monitor" labelWidth={8}>
                 <Select
                   options={monitorFieldOptions}
-                  value={monitorFieldOptions.find((o) => o.value === (query.monitorField ?? ALL_ROWS_VALUE)) || monitorFieldOptions[0]}
+                  value={
+                    monitorFieldOptions.find((o) => o.value === (query.monitorField ?? ALL_ROWS_VALUE)) ||
+                    monitorFieldOptions[0]
+                  }
                   onChange={onMonitorFieldChange}
                   width={30}
                   menuPlacement="bottom"
@@ -331,7 +448,9 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
               <InlineField label="by" labelWidth={4}>
                 <Select
                   options={aggregateOptions}
-                  value={aggregateOptions.find((o) => o.value === (query.monitorAggregate || 'COUNT')) || aggregateOptions[0]}
+                  value={
+                    aggregateOptions.find((o) => o.value === (query.monitorAggregate || 'COUNT')) || aggregateOptions[0]
+                  }
                   onChange={onMonitorAggregateChange}
                   width={16}
                   menuPlacement="bottom"
