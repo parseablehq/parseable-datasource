@@ -7,6 +7,8 @@ declare module '@grafana/runtime' {
   }
 }
 
+export type QueryLanguage = 'sql' | 'promql';
+
 export interface MyQuery extends DataQuery {
   queryText: string;
   editorMode?: QueryEditorMode;
@@ -21,6 +23,12 @@ export interface MyQuery extends DataQuery {
   monitorMetric?: string;
   /** Type of the selected metric (gauge, sum, histogram, summary) */
   monitorMetricType?: string;
+  /** Query language — sql (default) or promql */
+  queryLanguage?: QueryLanguage;
+  /** PromQL: run a range query (time series). Defaults to true when both flags are absent. */
+  range?: boolean;
+  /** PromQL: run an instant query (single-value at `to`). Used by Stat/Gauge/Table. */
+  instant?: boolean;
   alias?: string;
   target?: string;
   payload: string | { [key: string]: any };
@@ -31,6 +39,30 @@ export interface MetricInfo {
   metric_description: string;
   metric_type: string;
   count: number;
+}
+
+/** One entry from /prometheus/api/v1/metadata — type/help/unit per metric. */
+export interface PromMetadataEntry {
+  type?: string;
+  help?: string;
+  unit?: string;
+}
+
+export type PromVariableQueryType = 'label_names' | 'label_values' | 'metrics' | 'query_result';
+
+/** Typed variable query for dashboards. Legacy string queries (SQL) are still
+ * accepted by DataSource.metricFindQuery for backwards compatibility. */
+export interface PromVariableQuery {
+  qryType: PromVariableQueryType;
+  stream: string;
+  /** label_values: the label whose values to list. */
+  label?: string;
+  /** label_values: optional metric; when set, values are scoped to series of this metric. */
+  metric?: string;
+  /** metrics: regex to filter metric names (client-side). */
+  regex?: string;
+  /** query_result: arbitrary PromQL expression evaluated via instant query. */
+  expr?: string;
 }
 
 /**
@@ -135,11 +167,20 @@ export interface Storage {
 export interface Schema {
   schema?: string[];
 }
-export interface StreamList {
-  name?: string;
+/** Entry returned by /api/prism/v1/home → `datasets[]`. */
+export interface Dataset {
+  title: string;
+  datasetType?: string; // 'logs' | 'metrics' | 'traces'
+  datasetFormat?: string;
+  ingestion?: boolean;
+  timePartition?: string;
 }
 
-export type QueryEditorMode = "code" | "builder" | "monitor";
+export interface HomeResponse {
+  datasets?: Dataset[];
+}
+
+export type QueryEditorMode = "code" | "builder" | "monitor" | "promql";
 
 /**
  * A single filter condition — matches Prism's FilterType structure.

@@ -26,11 +26,7 @@ function getTypeBadgeColorKey(pt: ParsedType): string {
   }
 }
 
-export const StreamInfoPanel: React.FC<StreamInfoPanelProps> = ({
-  fieldNames,
-  fieldTypeMap,
-  stats,
-}) => {
+export const StreamInfoPanel: React.FC<StreamInfoPanelProps> = ({ fieldNames, fieldTypeMap, stats }) => {
   const styles = useStyles2(getStyles);
   const [columnsOpen, setColumnsOpen] = useState(true);
   const [statsOpen, setStatsOpen] = useState(true);
@@ -41,7 +37,7 @@ export const StreamInfoPanel: React.FC<StreamInfoPanelProps> = ({
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelTitle}>Stream Info</div>
+      <div className={styles.panelTitle}>Dataset Info</div>
 
       {/* Stats Section */}
       {stats?.stream && (
@@ -83,7 +79,9 @@ export const StreamInfoPanel: React.FC<StreamInfoPanelProps> = ({
                 return (
                   <Tooltip key={name} content={typeDisplayName(pt)}>
                     <div className={styles.columnItem}>
-                      <span className={`${styles.typeBadge} ${(styles as any)[`type_${getTypeBadgeColorKey(pt)}`] || ''}`}>
+                      <span
+                        className={`${styles.typeBadge} ${(styles as any)[`type_${getTypeBadgeColorKey(pt)}`] || ''}`}
+                      >
                         {typeLabel(pt)}
                       </span>
                       <span className={styles.columnName}>{name}</span>
