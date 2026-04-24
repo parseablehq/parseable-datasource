@@ -26,7 +26,7 @@
 - Upgraded Grafana compatibility to 12.x
 - Improved query editor UI
 - Improved datasource connection handling
-- Metrics-type datasets always evaluate as PromQL in Alerting (no SQL fallback); non-metrics datasets keep SQL with a default backfill so `/eval` never fires with an empty query
+- Alerting on metrics datasets offers a Builder / Code toggle: Builder mirrors the logs/traces monitor flow (Field + Aggregate + Filters → SQL) while Code runs the full PromQL editor. Non-metrics datasets keep SQL with a default backfill so `/eval` never fires with an empty query
 - Blur on the PromQL editor commits the text without auto-running; execution is explicit (Run queries button, Shift+Enter, or a committed UI action like changing dataset/mode/filter)
 - Dataset picker sorts actively-ingesting datasets first, then alphabetically; in PromQL mode the list is filtered to `metrics`-type datasets
 - Plugin logo paths switched from remote GitHub URLs to the bundled `img/logo.svg` so logos render without network access

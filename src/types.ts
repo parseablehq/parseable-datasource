@@ -23,6 +23,9 @@ export interface MyQuery extends DataQuery {
   monitorMetric?: string;
   /** Type of the selected metric (gauge, sum, histogram, summary) */
   monitorMetricType?: string;
+  /** Alerting sub-mode for metrics datasets: 'builder' (field/aggregate/filters → SQL)
+   * or 'code' (PromQL). Defaults to 'code' when unset. */
+  monitorMetricsMode?: 'builder' | 'code';
   /** Query language — sql (default) or promql */
   queryLanguage?: QueryLanguage;
   /** PromQL: run a range query (time series). Defaults to true when both flags are absent. */

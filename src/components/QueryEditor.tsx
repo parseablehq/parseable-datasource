@@ -474,6 +474,50 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   );
 
   const isMetricsStream = telemetryType === 'metrics';
+  // Sub-mode for metrics datasets in Alerting: 'builder' mirrors the logs /
+  // traces monitor builder (Field + Aggregate + Filters → SQL); 'code' runs
+  // the full PromQL editor. New metrics alerts default to Builder; alerts
+  // that were saved with PromQL text keep Code so we never wipe prior work.
+  const metricsAlertMode: 'builder' | 'code' =
+    query.monitorMetricsMode ?? (query.queryLanguage === 'promql' ? 'code' : 'builder');
+
+  const onMetricsAlertModeChange = useCallback(
+    (mode: 'builder' | 'code') => {
+      if (!selectedStream?.value) {
+        onChange({ ...query, monitorMetricsMode: mode });
+        return;
+      }
+      let nextText = '';
+      if (mode === 'builder') {
+        const field = query.monitorField ?? ALL_ROWS_VALUE;
+        const agg = query.monitorAggregate ?? 'COUNT';
+        nextText = buildMonitorSql(selectedStream.value, field, agg, query.filters || [], fieldTypeMap);
+        onChange({
+          ...query,
+          monitorMetricsMode: 'builder',
+          monitorField: field,
+          monitorAggregate: agg,
+          queryText: nextText,
+          queryLanguage: 'sql',
+        });
+      } else {
+        nextText = query.queryLanguage === 'promql' ? query.queryText || '' : '';
+        onChange({
+          ...query,
+          monitorMetricsMode: 'code',
+          queryLanguage: 'promql',
+          queryText: nextText,
+        });
+      }
+      // Only auto-run if the resulting query has content. Switching to Code
+      // with no prior PromQL body leaves the editor empty and would cause
+      // Alerting's /eval to reject the request with "query is empty".
+      if (nextText.trim()) {
+        onRunQuery();
+      }
+    },
+    [query, onChange, onRunQuery, selectedStream, fieldTypeMap]
+  );
 
   // -- Metrics alert handlers --
 
@@ -547,15 +591,15 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
     [query, onChange]
   );
 
-  // Ensure metrics-stream alerts always use PromQL. Triggers when:
-  //   - queryLanguage isn't set yet (fresh stream selection)
-  //   - queryLanguage is 'sql' (legacy saved alert from the old builder)
-  // Clears the text so the editor opens empty for the user to type PromQL.
+  // Metrics-dataset alert in Code (PromQL) sub-mode: force queryLanguage to
+  // 'promql'. Fires on fresh stream selection and when switching back from
+  // Builder. Clears a stale SQL body so the editor opens empty.
   useEffect(() => {
     if (
       isAlerting &&
       isMetricsStream &&
       selectedStream?.value &&
+      metricsAlertMode === 'code' &&
       query.queryLanguage !== 'promql'
     ) {
       onChange({
@@ -566,7 +610,31 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
         monitorMetricType: undefined,
       });
     }
-  }, [isAlerting, isMetricsStream, selectedStream?.value, query.queryLanguage]);
+  }, [isAlerting, isMetricsStream, selectedStream?.value, metricsAlertMode, query.queryLanguage]);
+
+  // Metrics-dataset alert in Builder sub-mode: backfill monitor SQL when the
+  // text is empty or still PromQL, so /eval never fires with a mismatched
+  // language. Mirrors the non-metrics backfill below.
+  useEffect(() => {
+    if (
+      isAlerting &&
+      isMetricsStream &&
+      selectedStream?.value &&
+      metricsAlertMode === 'builder' &&
+      (query.queryLanguage !== 'sql' || !query.queryText || !query.queryText.trim())
+    ) {
+      const field = query.monitorField ?? ALL_ROWS_VALUE;
+      const agg = query.monitorAggregate ?? 'COUNT';
+      const sql = buildMonitorSql(selectedStream.value, field, agg, query.filters || [], fieldTypeMap);
+      onChange({
+        ...query,
+        monitorField: field,
+        monitorAggregate: agg,
+        queryText: sql,
+        queryLanguage: 'sql',
+      });
+    }
+  }, [isAlerting, isMetricsStream, selectedStream?.value, metricsAlertMode, query.queryLanguage, fieldTypeMap]);
 
   // Backfill default SQL for non-metrics monitor alerts (logs / traces) if
   // queryText is still empty after the telemetry type has resolved. Without
@@ -704,37 +772,106 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
           </div>
         )}
 
-        {/* Monitor Mode — Metrics streams: always PromQL (no builder). */}
+        {/* Monitor Mode — Metrics datasets in Alerting: Builder / Code toggle. */}
         {editorMode === 'monitor' && selectedStream?.value && isMetricsStream && (
-          <div className={styles.metricsCodeArea}>
-            <CodeEditor
-              value={query.queryText || ''}
-              language="promql"
-              height={200}
-              showMiniMap={false}
-              showLineNumbers={true}
-              onChange={onMetricsCodeChange}
-              onBlur={onMetricsCodeBlur}
-              onBeforeEditorMount={setupPromqlEditor}
-              onEditorDidMount={(editor, monaco) => attachPromqlErrorMarkers(editor, monaco)}
-              monacoOptions={{
-                wordWrap: 'on',
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                fontSize: 13,
-                quickSuggestions: { other: true, comments: false, strings: true },
-                suggestOnTriggerCharacters: true,
-                wordBasedSuggestions: false,
-                suggest: {
-                  showKeywords: true,
-                  showFunctions: true,
-                  showFields: true,
-                  showProperties: true,
-                  showValues: true,
-                  showWords: false,
-                },
-              }}
-            />
+          <div className={styles.builderArea}>
+            <div className={styles.metricsToggleRow}>
+              <RadioButtonGroup
+                options={[
+                  { label: 'Builder', value: 'builder' as const },
+                  { label: 'Code', value: 'code' as const },
+                ]}
+                value={metricsAlertMode}
+                onChange={onMetricsAlertModeChange}
+                size="sm"
+              />
+            </div>
+
+            {metricsAlertMode === 'code' && (
+              <div className={styles.metricsCodeArea}>
+                <CodeEditor
+                  value={query.queryText || ''}
+                  language="promql"
+                  height={200}
+                  showMiniMap={false}
+                  showLineNumbers={true}
+                  onChange={onMetricsCodeChange}
+                  onBlur={onMetricsCodeBlur}
+                  onBeforeEditorMount={setupPromqlEditor}
+                  onEditorDidMount={(editor, monaco) => attachPromqlErrorMarkers(editor, monaco)}
+                  monacoOptions={{
+                    wordWrap: 'on',
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    fontSize: 13,
+                    quickSuggestions: { other: true, comments: false, strings: true },
+                    suggestOnTriggerCharacters: true,
+                    wordBasedSuggestions: false,
+                    suggest: {
+                      showKeywords: true,
+                      showFunctions: true,
+                      showFields: true,
+                      showProperties: true,
+                      showValues: true,
+                      showWords: false,
+                    },
+                  }}
+                />
+              </div>
+            )}
+
+            {metricsAlertMode === 'builder' && (
+              <>
+                {/* Field + Aggregate row — same UX as logs/traces monitor builder. */}
+                <div className={styles.monitorRow}>
+                  <InlineField label="Monitor" labelWidth={8}>
+                    <Select
+                      options={monitorFieldOptions}
+                      value={
+                        monitorFieldOptions.find((o) => o.value === (query.monitorField ?? ALL_ROWS_VALUE)) ||
+                        monitorFieldOptions[0]
+                      }
+                      onChange={onMonitorFieldChange}
+                      width={30}
+                      menuPlacement="bottom"
+                    />
+                  </InlineField>
+
+                  <InlineField label="by" labelWidth={4}>
+                    <Select
+                      options={aggregateOptions}
+                      value={
+                        aggregateOptions.find((o) => o.value === (query.monitorAggregate || 'COUNT')) ||
+                        aggregateOptions[0]
+                      }
+                      onChange={onMonitorAggregateChange}
+                      width={16}
+                      menuPlacement="bottom"
+                      disabled={(query.monitorField ?? ALL_ROWS_VALUE) === ALL_ROWS_VALUE}
+                    />
+                  </InlineField>
+                </div>
+
+                {/* Filters */}
+                <div className={styles.section}>
+                  <div className={styles.sectionLabel}>Filters</div>
+                  <FilterBuilder
+                    filters={filters}
+                    fieldTypeMap={fieldTypeMap}
+                    fieldNames={fieldNames}
+                    streamName={selectedStream.value}
+                    datasource={datasource}
+                    onChange={onMonitorFiltersChange}
+                  />
+                </div>
+
+                {/* SQL Preview */}
+                <div className={styles.sqlPreviewSection}>
+                  <div className={styles.sectionLabel}>Generated SQL</div>
+                  <pre className={styles.sqlPreviewText}>{query.queryText || ''}</pre>
+                </div>
+              </>
+            )}
           </div>
         )}
 
