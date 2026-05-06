@@ -12,3 +12,13 @@ services:
     volumes:
       - ./dist:/var/lib/grafana/plugins/parseable-parseable-datasource
       - ./provisioning:/etc/grafana/provisioning
+    depends_on:
+      - alertmanager
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: 'parseable-alertmanager'
+    ports:
+      - 9093:9093/tcp
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
