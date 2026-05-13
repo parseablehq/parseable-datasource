@@ -21,6 +21,7 @@ import {
   QueryEditorMode,
   StreamStatsResponse,
   MetricInfo,
+  PromLabelMatcher,
 } from '../types';
 import { buildFieldTypeMap, FieldTypeMap, typeDisplayName, getAggregateOptions } from '../utils/fieldTypes';
 import { buildSqlFromFilters, buildMonitorSql } from '../utils/queryBuilder';
@@ -31,10 +32,12 @@ import {
   clearPromqlCompletionCaches,
 } from '../utils/promqlCompletions';
 import { ensurePromqlHoverProvider } from '../utils/promqlHover';
+import { setupSqlEditor, updateSqlSchema } from '../utils/sqlCompletions';
 import { attachPromqlErrorMarkers } from '../utils/promqlParser';
 import { getPromqlHistory } from '../utils/promqlHistory';
 import { FilterBuilder } from './FilterBuilder';
 import { StreamInfoPanel } from './StreamInfoPanel';
+import { PromBuilder } from './PromBuilder';
 
 const ALL_ROWS_VALUE = '';
 
@@ -203,12 +206,16 @@ interface Props extends QueryEditorProps<DataSource, MyQuery, MyDataSourceOption
   payload?: string;
 }
 
-const EXPLORE_MODE_OPTIONS = [
+const EXPLORE_METRICS_MODE_OPTIONS = [
   { label: 'Builder', value: 'builder' as QueryEditorMode },
   { label: 'PromQL', value: 'promql' as QueryEditorMode },
 ];
+const EXPLORE_NON_METRICS_MODE_OPTIONS = [
+  { label: 'Builder', value: 'builder' as QueryEditorMode },
+  { label: 'SQL', value: 'code' as QueryEditorMode },
+];
 
-export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQuery, query, app }) => {
+export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQuery, query, app, range: timeRange }) => {
   const styles = useStyles2(getStyles);
 
   const isAlerting = app === CoreApp.UnifiedAlerting || app === CoreApp.CloudAlerting;
@@ -217,7 +224,14 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   // and Alerting uses its own preview / evaluate controls.
   const isDashboard = app === CoreApp.Dashboard || app === CoreApp.PanelEditor;
   const rawEditorMode = query.editorMode || datasource.defaultEditorMode || 'builder';
-  const editorMode: QueryEditorMode = isAlerting ? 'monitor' : rawEditorMode === 'promql' ? 'promql' : 'builder';
+  // Auto-run disabled across all surfaces (Explore, Dashboard/Panel-edit,
+  // Alerting). User explicitly triggers execution via Grafana's Run button
+  // (Explore), the local Run queries button (Dashboard), or the preview /
+  // evaluate flow (Alerting). Builder/PromBuilder/SQL/PromQL/Monitor edits
+  // mutate query state only — they never fire onRunQuery.
+  const autoRunQuery = useCallback(() => {
+    // no-op
+  }, []);
   const filters = query.filters || [];
   const selectedColumns = query.selectedColumns || [];
 
@@ -227,6 +241,18 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   const [schemaFields, setSchemaFields] = useState<SchemaFields[]>([]);
   const [stats, setStats] = useState<StreamStatsResponse>({});
   const [telemetryType, setTelemetryType] = useState<string | undefined>();
+  const isMetricsStream = telemetryType === 'metrics';
+  // Toggle value clamped by telemetry: metrics streams allow Builder/PromQL,
+  // logs/traces allow Builder/SQL. A stored mode that doesn't fit the current
+  // stream falls back to Builder so the UI never shows an editor for a mode
+  // the dataset cannot serve.
+  const editorMode: QueryEditorMode = isAlerting
+    ? 'monitor'
+    : rawEditorMode === 'promql' && isMetricsStream
+    ? 'promql'
+    : rawEditorMode === 'code' && !isMetricsStream
+    ? 'code'
+    : 'builder';
   const [metricsList, setMetricsList] = useState<MetricInfo[]>([]);
   const [promLabels, setPromLabels] = useState<string[]>([]);
   const [promMetricNames, setPromMetricNames] = useState<string[]>([]);
@@ -281,18 +307,26 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
           const tType = result.info?.telemetryType;
           setTelemetryType(tType);
 
-          // Fetch metric names and PromQL metadata for metrics streams
+          // Fetch metric names and PromQL metadata for metrics streams.
+          // Scope to the current time range + limit so /labels and
+          // /label/__name__/values return only what's queryable in the
+          // currently selected window (matches Prometheus plugin behavior).
+          const promOpts: { start?: number; end?: number; limit?: number } = { limit: 1000 };
+          if (timeRange) {
+            promOpts.start = Math.floor(timeRange.from.valueOf() / 1000);
+            promOpts.end = Math.floor(timeRange.to.valueOf() / 1000);
+          }
           if (tType === 'metrics') {
             datasource
               .getMetricNames(streamName)
               .then(setMetricsList)
               .catch(() => setMetricsList([]));
             datasource
-              .getPromLabels(streamName)
+              .getPromLabels(streamName, promOpts)
               .then(setPromLabels)
               .catch(() => setPromLabels([]));
             datasource
-              .getPromMetricNames(streamName)
+              .getPromMetricNames(streamName, promOpts)
               .then(setPromMetricNames)
               .catch(() => setPromMetricNames([]));
             datasource
@@ -362,10 +396,10 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
       }
       onChange(newQuery);
       if (editorMode !== 'monitor') {
-        onRunQuery();
+        autoRunQuery();
       }
     },
-    [query, onChange, onRunQuery, editorMode, fieldTypeMap]
+    [query, onChange, autoRunQuery, editorMode, fieldTypeMap]
   );
 
   // Handle mode change
@@ -383,6 +417,18 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
         if (query.queryLanguage !== 'promql') {
           newQuery.queryText = '';
         }
+      } else if (mode === 'code' && selectedStream?.value) {
+        // Logs/traces SQL editor — seed with the Builder's generated SQL so
+        // switching modes doesn't drop the user's existing filter/column work.
+        newQuery.queryLanguage = 'sql';
+        if (query.queryLanguage === 'promql' || !query.queryText) {
+          newQuery.queryText = buildSqlFromFilters(
+            selectedStream.value,
+            query.filters || [],
+            query.selectedColumns || [],
+            fieldTypeMap
+          );
+        }
       } else if (mode === 'monitor' && selectedStream?.value) {
         const field = query.monitorField ?? ALL_ROWS_VALUE;
         const agg = query.monitorAggregate ?? 'COUNT';
@@ -392,9 +438,36 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
         newQuery.queryText = buildMonitorSql(selectedStream.value, field, agg, newQuery.filters, fieldTypeMap);
       }
       onChange(newQuery);
-      onRunQuery();
+      autoRunQuery();
     },
-    [query, onChange, onRunQuery, selectedStream, fieldTypeMap]
+    [query, onChange, autoRunQuery, selectedStream, fieldTypeMap]
+  );
+
+  // PromBuilder (metrics, Explore) → persist metric+matchers and the
+  // composed PromQL selector into the query so toggling to PromQL Code mode
+  // shows the same selector.
+  const onPromBuilderChange = useCallback(
+    (next: {
+      metric?: string;
+      matchers: PromLabelMatcher[];
+      range?: boolean;
+      instant?: boolean;
+      queryText: string;
+    }) => {
+      onChange({
+        ...query,
+        promBuilderMetric: next.metric,
+        promBuilderMatchers: next.matchers,
+        range: next.range,
+        instant: next.instant,
+        queryText: next.queryText,
+        queryLanguage: 'promql',
+      });
+      if (next.queryText.trim()) {
+        autoRunQuery();
+      }
+    },
+    [query, onChange, autoRunQuery]
   );
 
   // Handle filter changes (builder mode)
@@ -405,9 +478,9 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
       }
       const sql = buildSqlFromFilters(selectedStream.value, newFilters, selectedColumns, fieldTypeMap);
       onChange({ ...query, filters: newFilters, queryText: sql });
-      onRunQuery();
+      autoRunQuery();
     },
-    [query, onChange, onRunQuery, selectedStream, selectedColumns, fieldTypeMap]
+    [query, onChange, autoRunQuery, selectedStream, selectedColumns, fieldTypeMap]
   );
 
   // Handle column selection changes (builder mode)
@@ -419,9 +492,9 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
       const colNames = cols.map((c) => c.value!).filter(Boolean);
       const sql = buildSqlFromFilters(selectedStream.value, filters, colNames, fieldTypeMap);
       onChange({ ...query, selectedColumns: colNames, queryText: sql });
-      onRunQuery();
+      autoRunQuery();
     },
-    [query, onChange, onRunQuery, selectedStream, filters, fieldTypeMap]
+    [query, onChange, autoRunQuery, selectedStream, filters, fieldTypeMap]
   );
 
   // Handle monitor field change
@@ -438,9 +511,9 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
 
       const sql = buildMonitorSql(selectedStream.value, field, agg, filters, fieldTypeMap);
       onChange({ ...query, monitorField: field, monitorAggregate: agg, queryText: sql });
-      onRunQuery();
+      autoRunQuery();
     },
-    [query, onChange, onRunQuery, selectedStream, filters, fieldTypeMap]
+    [query, onChange, autoRunQuery, selectedStream, filters, fieldTypeMap]
   );
 
   // Handle monitor aggregate change
@@ -453,9 +526,9 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
       const field = query.monitorField ?? ALL_ROWS_VALUE;
       const sql = buildMonitorSql(selectedStream.value, field, agg, filters, fieldTypeMap);
       onChange({ ...query, monitorAggregate: agg, queryText: sql });
-      onRunQuery();
+      autoRunQuery();
     },
-    [query, onChange, onRunQuery, selectedStream, filters, fieldTypeMap]
+    [query, onChange, autoRunQuery, selectedStream, filters, fieldTypeMap]
   );
 
   // Handle filter changes in monitor mode
@@ -468,12 +541,11 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
       const agg = query.monitorAggregate ?? 'COUNT';
       const sql = buildMonitorSql(selectedStream.value, field, agg, newFilters, fieldTypeMap);
       onChange({ ...query, filters: newFilters, queryText: sql });
-      onRunQuery();
+      autoRunQuery();
     },
-    [query, onChange, onRunQuery, selectedStream, fieldTypeMap]
+    [query, onChange, autoRunQuery, selectedStream, fieldTypeMap]
   );
 
-  const isMetricsStream = telemetryType === 'metrics';
   // Sub-mode for metrics datasets in Alerting: 'builder' mirrors the logs /
   // traces monitor builder (Field + Aggregate + Filters → SQL); 'code' runs
   // the full PromQL editor. New metrics alerts default to Builder; alerts
@@ -513,10 +585,10 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
       // with no prior PromQL body leaves the editor empty and would cause
       // Alerting's /eval to reject the request with "query is empty".
       if (nextText.trim()) {
-        onRunQuery();
+        autoRunQuery();
       }
     },
-    [query, onChange, onRunQuery, selectedStream, fieldTypeMap]
+    [query, onChange, autoRunQuery, selectedStream, fieldTypeMap]
   );
 
   // -- Metrics alert handlers --
@@ -565,12 +637,36 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
     // invocation of this effect is fine — it's synchronous localStorage.
   }, [selectedStream?.value, promMetricNames, promLabels, metricMetadata, datasource, query.queryText]);
 
+  // SQL Monaco completion provider reads from a module-scope holder. Push
+  // the current stream + schema in so column/table suggestions track the
+  // dataset the user has selected.
+  useEffect(() => {
+    updateSqlSchema(selectedStream?.value, schemaFields);
+  }, [selectedStream?.value, schemaFields]);
+
   // Clear context on unmount so stale suggestions don't leak across editors.
   useEffect(() => {
     return () => {
       setPromqlCompletionContext(null);
     };
   }, []);
+
+  // Logs/traces SQL code editor — keystroke updates only; run on blur.
+  const onSqlCodeChange = useCallback(
+    (value: string) => {
+      onChange({ ...query, queryText: value, queryLanguage: 'sql' });
+    },
+    [query, onChange]
+  );
+  const onSqlCodeBlur = useCallback(
+    (value: string) => {
+      onChange({ ...query, queryText: value, queryLanguage: 'sql' });
+      if (value.trim()) {
+        autoRunQuery();
+      }
+    },
+    [query, onChange, autoRunQuery]
+  );
 
   // Per-keystroke in the Monaco PromQL editor — updates the query spec only.
   // Explicit run happens on blur (below), Shift+Enter, or the Run query button.
@@ -694,7 +790,7 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   return (
     <div className={styles.wrapper}>
       {/* Dataset Info Sidebar */}
-      {!isAlerting && selectedStream?.value && editorMode !== 'promql' && (
+      {!isAlerting && selectedStream?.value && editorMode !== 'promql' && !isMetricsStream && (
         <StreamInfoPanel fieldNames={fieldNames} fieldTypeMap={fieldTypeMap} stats={stats} />
       )}
 
@@ -729,13 +825,18 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
               </Button>
             )}
             {!isAlerting && (
-              <RadioButtonGroup options={EXPLORE_MODE_OPTIONS} value={editorMode} onChange={onModeChange} size="sm" />
+              <RadioButtonGroup
+                options={isMetricsStream ? EXPLORE_METRICS_MODE_OPTIONS : EXPLORE_NON_METRICS_MODE_OPTIONS}
+                value={editorMode}
+                onChange={onModeChange}
+                size="sm"
+              />
             )}
           </div>
         </div>
 
-        {/* Builder Mode */}
-        {editorMode === 'builder' && selectedStream?.value && (
+        {/* Builder Mode — Logs/Traces SQL filter+column builder */}
+        {editorMode === 'builder' && selectedStream?.value && !isMetricsStream && (
           <div className={styles.builderArea}>
             {/* Filters */}
             <div className={styles.section}>
@@ -769,6 +870,24 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
               <div className={styles.sectionLabel}>Generated SQL</div>
               <pre className={styles.sqlPreviewText}>{query.queryText || ''}</pre>
             </div>
+          </div>
+        )}
+
+        {/* Builder Mode — Metrics Prometheus-style UI */}
+        {editorMode === 'builder' && selectedStream?.value && isMetricsStream && (
+          <div className={styles.builderArea}>
+            <PromBuilder
+              datasource={datasource}
+              streamName={selectedStream.value}
+              metricNames={promMetricNames}
+              labels={promLabels}
+              metric={query.promBuilderMetric}
+              matchers={query.promBuilderMatchers || []}
+              range={query.range}
+              instant={query.instant}
+              timeRange={timeRange}
+              onChange={onPromBuilderChange}
+            />
           </div>
         )}
 
@@ -949,7 +1068,7 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
                   const range = mode === 'range' || mode === 'both';
                   const instant = mode === 'instant' || mode === 'both';
                   onChange({ ...query, range, instant });
-                  onRunQuery();
+                  autoRunQuery();
                 }}
                 size="sm"
               />
@@ -991,6 +1110,38 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
             />
           </div>
           </>
+        )}
+
+        {/* SQL Mode (Explore, logs/traces) */}
+        {editorMode === 'code' && selectedStream?.value && (
+          <div className={styles.promqlArea}>
+            <CodeEditor
+              value={query.queryText || ''}
+              language="sql"
+              height={120}
+              showMiniMap={false}
+              showLineNumbers={true}
+              onChange={onSqlCodeChange}
+              onBlur={onSqlCodeBlur}
+              onBeforeEditorMount={setupSqlEditor}
+              monacoOptions={{
+                wordWrap: 'on',
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                fontSize: 13,
+                quickSuggestions: { other: true, comments: false, strings: true },
+                suggestOnTriggerCharacters: true,
+                wordBasedSuggestions: false,
+                suggest: {
+                  showKeywords: true,
+                  showFunctions: true,
+                  showFields: true,
+                  showStructs: true,
+                  showWords: false,
+                },
+              }}
+            />
+          </div>
         )}
 
         {/* Prompt to select stream */}

@@ -35,6 +35,17 @@ export interface MyQuery extends DataQuery {
   alias?: string;
   target?: string;
   payload: string | { [key: string]: any };
+  /** PromQL Builder mode state — selected metric + label matcher rows.
+   * The composed selector is also stored in queryText so PromQL/Builder
+   * toggles stay in sync. */
+  promBuilderMetric?: string;
+  promBuilderMatchers?: PromLabelMatcher[];
+}
+
+export interface PromLabelMatcher {
+  label: string;
+  operator: '=' | '!=' | '=~' | '!~';
+  value: string;
 }
 
 export interface MetricInfo {
@@ -159,12 +170,14 @@ export interface SchemaFields {
 export interface Ingestion {
   count?: number;
   format?: string;
-  size?: string;
+  // Parseable returns raw bytes as a number; older builds emitted a string
+  // like "12345 Bytes". Accept either so the panel renders both shapes.
+  size?: number | string;
 }
 
 export interface Storage {
   format?: string;
-  size?: string;
+  size?: number | string;
 }
 
 export interface Schema {

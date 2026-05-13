@@ -4,6 +4,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
 import { StreamStatsResponse } from '../types';
 import { FieldTypeMap, ParsedType, typeLabel, typeDisplayName } from '../utils/fieldTypes';
+import { sanitizeBytes, sanitizeEventsCount } from '../utils/format';
 
 interface StreamInfoPanelProps {
   fieldNames: string[];
@@ -50,15 +51,17 @@ export const StreamInfoPanel: React.FC<StreamInfoPanelProps> = ({ fieldNames, fi
             <div className={styles.statsGrid}>
               <div className={styles.statItem}>
                 <span className={styles.statLabel}>Events</span>
-                <span className={styles.statValue}>{stats.ingestion?.count?.toLocaleString() ?? '-'}</span>
+                <span className={styles.statValue}>
+                  {typeof stats.ingestion?.count === 'number' ? sanitizeEventsCount(stats.ingestion.count) : '-'}
+                </span>
               </div>
               <div className={styles.statItem}>
                 <span className={styles.statLabel}>Ingested</span>
-                <span className={styles.statValue}>{stats.ingestion?.size ?? '-'}</span>
+                <span className={styles.statValue}>{stats.ingestion?.size ? sanitizeBytes(stats.ingestion.size) : '-'}</span>
               </div>
               <div className={styles.statItem}>
                 <span className={styles.statLabel}>Stored</span>
-                <span className={styles.statValue}>{stats.storage?.size ?? '-'}</span>
+                <span className={styles.statValue}>{stats.storage?.size ? sanitizeBytes(stats.storage.size) : '-'}</span>
               </div>
             </div>
           )}
