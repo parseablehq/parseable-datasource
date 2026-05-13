@@ -12,6 +12,11 @@ services:
     volumes:
       - ./dist:/var/lib/grafana/plugins/parseable-parseable-datasource
       - ./provisioning:/etc/grafana/provisioning
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
     depends_on:
       - alertmanager
 

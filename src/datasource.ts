@@ -44,7 +44,7 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     super(instanceSettings);
     this.url = instanceSettings.url === undefined ? '' : instanceSettings.url;
     this.withCredentials = instanceSettings.withCredentials !== undefined;
-    this.defaultEditorMode = instanceSettings.jsonData?.defaultEditorMode ?? 'code';
+    this.defaultEditorMode = instanceSettings.jsonData?.defaultEditorMode ?? 'builder';
   }
 
   async doRequest(query: MyQuery) {
@@ -509,7 +509,7 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
 
   async getPromLabels(
     streamName: string,
-    opts?: { match?: string[]; start?: number; end?: number }
+    opts?: { match?: string[]; start?: number; end?: number; limit?: number }
   ): Promise<string[]> {
     if (!streamName) {
       return [];
@@ -521,6 +521,9 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     }
     if (opts?.end !== undefined) {
       parts.push('end=' + opts.end);
+    }
+    if (opts?.limit !== undefined) {
+      parts.push('limit=' + opts.limit);
     }
     try {
       return await lastValueFrom(
@@ -544,7 +547,7 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
 
   async getPromMetricNames(
     streamName: string,
-    opts?: { start?: number; end?: number }
+    opts?: { start?: number; end?: number; limit?: number }
   ): Promise<string[]> {
     return this.getPromLabelValues(streamName, '__name__', opts);
   }
@@ -734,7 +737,7 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
   async getPromLabelValues(
     streamName: string,
     labelName: string,
-    opts?: { match?: string[]; start?: number; end?: number }
+    opts?: { match?: string[]; start?: number; end?: number; limit?: number }
   ): Promise<string[]> {
     if (!streamName || !labelName) {
       return [];
@@ -746,6 +749,9 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     }
     if (opts?.end !== undefined) {
       parts.push('end=' + opts.end);
+    }
+    if (opts?.limit !== undefined) {
+      parts.push('limit=' + opts.limit);
     }
     try {
       return await lastValueFrom(
