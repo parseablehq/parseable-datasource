@@ -1,11 +1,15 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { css } from '@emotion/css';
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { Select, AsyncSelect, Button, IconButton, useStyles2 } from '@grafana/ui';
+import { Select, Button, IconButton, useStyles2, useTheme2, getSelectStyles } from '@grafana/ui';
 import { FilterCondition } from '../types';
 import { FieldTypeMap, getOperators, typeDisplayName } from '../utils/fieldTypes';
 import { isNullOperator } from '../utils/queryBuilder';
 import { DataSource } from '../datasource';
+import { HumanizeNumber } from '../utils/format';
+
+const INITIAL_PAGE = 5;
+const NEXT_PAGE = 5000;
 
 interface FilterBuilderProps {
   filters: FilterCondition[];
@@ -84,22 +88,110 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
     resetAddForm();
   }, [newColumn, newOperator, newValue, filters, onChange, resetAddForm, fieldTypeMap]);
 
-  const loadValueSuggestions = useCallback(
-    async (inputValue: string): Promise<Array<SelectableValue<string>>> => {
-      if (!streamName || !newColumn?.value) {
+  const [valueOptions, setValueOptions] = useState<Array<{ value: string; count: number }>>([]);
+  const [valueOffset, setValueOffset] = useState(0);
+  const [valueHasMore, setValueHasMore] = useState(false);
+  const [valueLoading, setValueLoading] = useState(false);
+  const requestIdRef = useRef(0);
+
+  const fetchValues = useCallback(
+    async (column: string, offset: number, limit: number) => {
+      if (!streamName) {
         return [];
       }
       try {
-        const values = await datasource.getDistinctValues(streamName, newColumn.value);
-        return values
-          .filter((v) => !inputValue || v.toLowerCase().includes(inputValue.toLowerCase()))
-          .map((v) => ({ label: v, value: v }));
+        return await datasource.getDistinctValues(streamName, column, { offset, limit });
       } catch {
         return [];
       }
     },
-    [streamName, newColumn, datasource]
+    [streamName, datasource]
   );
+
+  useEffect(() => {
+    const column = newColumn?.value;
+    if (!column || !streamName) {
+      setValueOptions([]);
+      setValueOffset(0);
+      setValueHasMore(false);
+      return;
+    }
+    const reqId = ++requestIdRef.current;
+    setValueLoading(true);
+    setValueOptions([]);
+    setValueOffset(0);
+    setValueHasMore(false);
+    fetchValues(column, 0, INITIAL_PAGE).then((rows) => {
+      if (reqId !== requestIdRef.current) {
+        return;
+      }
+      setValueOptions(rows);
+      setValueOffset(rows.length);
+      setValueHasMore(rows.length === INITIAL_PAGE);
+      setValueLoading(false);
+    });
+  }, [newColumn, streamName, fetchValues]);
+
+  const loadMoreValues = useCallback(async () => {
+    const column = newColumn?.value;
+    if (!column || valueLoading || !valueHasMore) {
+      return;
+    }
+    const reqId = ++requestIdRef.current;
+    setValueLoading(true);
+    const rows = await fetchValues(column, valueOffset, NEXT_PAGE);
+    if (reqId !== requestIdRef.current) {
+      return;
+    }
+    setValueOptions((prev) => [...prev, ...rows]);
+    setValueOffset((prev) => prev + rows.length);
+    setValueHasMore(rows.length === NEXT_PAGE);
+    setValueLoading(false);
+  }, [newColumn, fetchValues, valueOffset, valueHasMore, valueLoading]);
+
+  const valueSelectOptions: Array<SelectableValue<string>> = useMemo(
+    () =>
+      valueOptions.map((row) => ({
+        label: row.value,
+        value: row.value,
+        description: HumanizeNumber(row.count),
+      })),
+    [valueOptions]
+  );
+
+  const theme = useTheme2();
+  const grafanaSelectStyles = getSelectStyles(theme);
+
+  const MenuListWithMore = useMemo(() => {
+    const styles2 = styles;
+    const menuClass = grafanaSelectStyles.menu;
+    const Comp: React.FC<any> = (menuProps) => {
+      const { innerRef, innerProps, maxHeight } = menuProps;
+      return (
+        <div {...innerProps} className={menuClass} style={{ maxHeight }}>
+          <div ref={innerRef} className={styles2.menuScroll} style={{ maxHeight: 'inherit' }}>
+            {menuProps.children}
+            {(valueHasMore || valueLoading) && (
+              <div
+                role="button"
+                className={styles2.showMore}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!valueLoading) {
+                    loadMoreValues();
+                  }
+                }}
+              >
+                {valueLoading ? 'Loading…' : 'Show more values'}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+    return Comp;
+  }, [valueHasMore, valueLoading, loadMoreValues, styles, grafanaSelectStyles.menu]);
 
   const formatFilterDisplay = (filter: FilterCondition): string => {
     if (isNullOperator(filter.operator)) {
@@ -163,12 +255,13 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
             disabled={!newColumn?.value}
           />
           {newOperator && !isNullOperator(newOperator.value!) && (
-            <AsyncSelect
+            <Select
               key={newColumn?.value || 'value'}
-              loadOptions={loadValueSuggestions}
-              defaultOptions
+              options={valueSelectOptions}
               value={newValue ? { label: newValue, value: newValue } : null}
               onChange={(v) => setNewValue(v?.value || '')}
+              components={{ MenuList: MenuListWithMore }}
+              isLoading={valueLoading}
               allowCustomValue
               onCreateOption={(v) => setNewValue(v)}
               placeholder="Value"
@@ -228,5 +321,24 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(0.5),
     alignItems: 'center',
     flexWrap: 'wrap',
+  }),
+  menuScroll: css({
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    padding: theme.spacing(0.5),
+  }),
+  showMore: css({
+    marginTop: theme.spacing(0.5),
+    padding: `${theme.spacing(0.75)} ${theme.spacing(1.25)}`,
+    borderTop: `1px solid ${theme.colors.border.weak}`,
+    color: theme.colors.text.link,
+    cursor: 'pointer',
+    fontSize: theme.typography.bodySmall.fontSize,
+    fontWeight: theme.typography.fontWeightMedium,
+    userSelect: 'none',
+    textAlign: 'center',
+    [`&:hover`]: {
+      background: theme.colors.action.hover,
+    },
   }),
 });
