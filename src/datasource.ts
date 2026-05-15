@@ -859,34 +859,41 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     }
   }
 
-  async getDistinctValues(streamName: string, columnName: string, limit = 50): Promise<string[]> {
-    const query = `SELECT DISTINCT "${columnName}" FROM ${streamName} LIMIT ${limit}`;
+  async getDistinctValues(
+    streamName: string,
+    columnName: string,
+    opts: { limit?: number; offset?: number } = {}
+  ): Promise<Array<{ value: string; count: number }>> {
+    const limit = opts.limit ?? 5;
+    const offset = opts.offset ?? 0;
     const now = new Date();
     const from = new Date();
     from.setDate(now.getDate() - 7);
 
     try {
       return await lastValueFrom(
-        this.doFetch<any[]>({
-          url: this.url + '/api/v1/query',
+        this.doFetch<Record<string, { distinct_values?: Record<string, number> }>>({
+          url: this.url + '/api/prism/v1/dataset_stats',
           data: {
-            query,
+            datasetName: streamName,
             startTime: from.toISOString(),
             endTime: now.toISOString(),
-            send_null: true,
+            fields: [columnName],
+            offset,
+            limit,
           },
           method: 'POST',
         }).pipe(
           map((res) => {
-            if (isArray(res.data)) {
-              return res.data
-                .map((row) => {
-                  const val = row[columnName];
-                  return val != null ? String(val) : '';
-                })
-                .filter(Boolean);
+            const fieldStats = res.data?.[columnName];
+            const distinct = fieldStats?.distinct_values;
+            if (!distinct || typeof distinct !== 'object') {
+              return [];
             }
-            return [];
+            return Object.entries(distinct)
+              .map(([value, count]) => ({ value: String(value), count: Number(count) || 0 }))
+              .filter((row) => row.value)
+              .sort((a, b) => b.count - a.count);
           }),
           catchError(() => of([]))
         )
