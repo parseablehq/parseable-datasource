@@ -1,0 +1,23 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "matrix",
+    "result": [
+      {
+        "metric": {"__name__": "up", "instance": "host-a", "job": "node"},
+        "values": [
+          ["2026-05-16T10:00:00Z", "1"],
+          ["2026-05-16T10:00:15Z", "1"],
+          ["2026-05-16T10:00:30Z", "0"]
+        ]
+      },
+      {
+        "metric": {"__name__": "up", "instance": "host-b", "job": "node"},
+        "values": [
+          ["2026-05-16T10:00:00Z", "1"],
+          ["2026-05-16T10:00:30Z", "1"]
+        ]
+      }
+    ]
+  }
+}

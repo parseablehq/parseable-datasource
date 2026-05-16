@@ -1,22 +1,26 @@
 package plugin
 
 import (
+	_ "embed"
 	"encoding/json"
 	"os"
 	"testing"
 )
 
+//go:embed testdata/prom_resp.json
+var embeddedPromResp []byte
+
 // Regression: make sure our matrix / sample decoding works against the real
 // Parseable /query_range response shape, including RFC3339 timestamps returned
 // even when timestamp_format=unix is requested.
 func TestPromMatrixDecode_Parseable(t *testing.T) {
-	path := os.Getenv("PROM_RESP_JSON")
-	if path == "" {
-		path = "/tmp/prom_resp.json"
-	}
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Skipf("skipping: %v (set PROM_RESP_JSON to point at a captured response)", err)
+	data := embeddedPromResp
+	if path := os.Getenv("PROM_RESP_JSON"); path != "" {
+		b, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read PROM_RESP_JSON %q: %v", path, err)
+		}
+		data = b
 	}
 	var pr promResponse
 	if err := json.Unmarshal(data, &pr); err != nil {
