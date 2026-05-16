@@ -4,12 +4,12 @@ This data source plugin allows you to query and visualize log data stored in Par
 
 ## Pre-requisites
 
-- [Parseable server](https://github.com/parseablehq/parseable) setup and receiving logs from your application. Read more on [Parseable documentation](https://www.parseable.io/docs/quick-start).
+- [Parseable server](https://github.com/parseablehq/parseable) setup and receiving logs from your application. Read more on [Parseable documentation](https://www.parseable.com/docs/get-started).
 - Grafana installed and running. Read more on [Grafana documentation](https://grafana.com/docs/grafana/latest/installation/).
 
 ## Installation & Usage
 
-Refer the Parseable Grafana documentation page: [https://www.parseable.io/docs/integrations/grafana](https://www.parseable.io/docs/integrations/grafana).
+Refer the Parseable Grafana documentation page: [https://www.parseable.com/docs/integrations/visualization/grafana](https://www.parseable.com/docs/integrations/visualization/grafana).
 
 ## Screenshots
 
