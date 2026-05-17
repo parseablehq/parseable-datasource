@@ -11,7 +11,7 @@ import {
   useStyles2,
   MultiSelect,
 } from '@grafana/ui';
-import type { Monaco } from '@grafana/ui/dist/types/components/Monaco/types';
+import type { Monaco } from '@grafana/ui';
 import { DataSource } from '../datasource';
 import {
   SchemaFields,
