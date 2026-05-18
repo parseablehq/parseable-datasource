@@ -15,22 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Go 1.26
-        uses: actions/setup-go@v5
-        with:
-          # Use '1.26' to get the latest patch (e.g., 1.26.3) automatically
-          go-version: '1.26' 
-          # Optional: ensures the action checks for the latest patch available
-          check-latest: true 
-
-      - name: Verify Go version
-        run: go version
-
       - uses: grafana/plugin-actions/build-plugin@main
         with:
           # refer to https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin#generate-an-access-policy-token to generate it
           # save the value in your repository secrets
+          go-version: '1.26'
           policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
           attestation: true
           use_changelog_generator: true # Enable automatic changelog generation
