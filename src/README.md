@@ -4,7 +4,7 @@ This data source plugin allows you to query, search and visualize telemetry data
 
 ## Pre-requisites
 
-[Parseable server](https://github.com/parseablehq/parseable) setup and receiving telemetry data from your application. Read more on [Parseable documentation](https://www.parseable.io/docs/quick-start).
+[Parseable server](https://github.com/parseablehq/parseable) setup and receiving telemetry data from your application. Read more on [Parseable documentation](https://www.parseable.com/docs/get-started).
 
 ## Installation
 
