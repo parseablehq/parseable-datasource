@@ -1,68 +1,81 @@
 # Changelog
 
-## 1.3.0 (Unreleased)
+## [v2.0.0](https://github.com/parseablehq/parseable-datasource/tree/v2.0.0) (2026-05-18)
 
-### Breaking Changes
+[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v1.2.1...v2.0.0)
 
-- Minimum Grafana version bumped to 10.0.0
-- Variable queries now use a typed editor (query type / dataset / label / metric / regex / PromQL). Legacy string-based variable queries are still accepted by `metricFindQuery` for backwards compatibility
+- Undefined field handling [\#44](https://github.com/parseablehq/parseable-datasource/issues/44)
 
-### Added
+- use go 1.26 for plugin build action [\#58](https://github.com/parseablehq/parseable-datasource/pull/58) ([nitisht](https://github.com/nitisht))
+- update packages to avoid vulnerabilties [\#57](https://github.com/parseablehq/parseable-datasource/pull/57) ([nitisht](https://github.com/nitisht))
+- release 2.0.0 [\#56](https://github.com/parseablehq/parseable-datasource/pull/56) ([nitisht](https://github.com/nitisht))
+- chore: upgrade deps + fix Grafana plugin validation issues [\#55](https://github.com/parseablehq/parseable-datasource/pull/55) ([praveen5959](https://github.com/praveen5959))
+- prepare for release 2.0.0 [\#54](https://github.com/parseablehq/parseable-datasource/pull/54) ([nitisht](https://github.com/nitisht))
+- feat: paginated value suggestions via dataset\_stats with top-5 + show more [\#53](https://github.com/parseablehq/parseable-datasource/pull/53) ([praveen5959](https://github.com/praveen5959))
+- Prom ql builder [\#52](https://github.com/parseablehq/parseable-datasource/pull/52) ([praveen5959](https://github.com/praveen5959))
+-   feat: PromQL-first with full Code-mode feature parity [\#51](https://github.com/parseablehq/parseable-datasource/pull/51) ([praveen5959](https://github.com/praveen5959))
+-  Upgrade Grafana SDK to 12.x, modernize build and CI [\#50](https://github.com/parseablehq/parseable-datasource/pull/50) ([praveen5959](https://github.com/praveen5959))
+- Update branding: replace logo and update terminology from logs to telemetry data [\#49](https://github.com/parseablehq/parseable-datasource/pull/49) ([Debanitrkl](https://github.com/Debanitrkl))
+- add Parseable Meta Dashboard [\#48](https://github.com/parseablehq/parseable-datasource/pull/48) ([nitisht](https://github.com/nitisht))
+- fixed plugin validation error: renamed root dir - from 'dist' to plugin-id [\#47](https://github.com/parseablehq/parseable-datasource/pull/47) ([balaji-jr](https://github.com/balaji-jr))
 
-- Full PromQL support across Explore, Dashboards and Unified Alerting, on par with Grafana's native Prometheus plugin in Code mode
-- Go backend PromQL path (`/prometheus/api/v1/query`, `/prometheus/api/v1/query_range`) so Unified Alerting can evaluate PromQL directly through the plugin backend; handles matrix / vector / scalar result types and both unix and RFC3339 timestamps
-- PromQL code editor (Monaco) with syntax highlighting, bracket matching, and UTF-8 metric name support (e.g. `process.cpu.time`)
-- Context-aware PromQL autocomplete: metric names, label names and label values scoped to the current metric (via `/labels` and `/label/{name}/values` with `match[]`), aggregation & function snippets, `by` / `without` / `on` / `ignoring` grouping, `@` / `offset` modifiers, and duration completions inside range selectors
-- Function signature help and hover documentation for 70+ PromQL functions / aggregations, plus hover docs for metrics (type + help from `/prometheus/api/v1/metadata`, with SQL fallback)
-- Inline PromQL parse-error squiggles powered by the Prometheus Lezer grammar
-- Per-datasource PromQL query history surfaced as completion items
-- Typed variable query editor for PromQL: `label_names`, `label_values(metric, label)`, `metrics(regex)`, and `query_result(expr)`
-- Range / Instant / Both toggle for PromQL queries in Explore (instant queries power Stat / Gauge / Table panels)
-- Run queries button in Dashboard and Alerting (Explore keeps Grafana's native top-bar Run)
-- Local-dev Alertmanager service in `docker-compose.yaml` for alert delivery testing (not part of the plugin release bundle)
+## [v1.2.1](https://github.com/parseablehq/parseable-datasource/tree/v1.2.1) (2024-06-11)
 
-### Changed
+[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v1.2.0...v1.2.1)
 
-- Upgraded Grafana compatibility to 12.x
-- Improved query editor UI
-- Improved datasource connection handling
-- Alerting on metrics datasets offers a Builder / Code toggle: Builder mirrors the logs/traces monitor flow (Field + Aggregate + Filters → SQL) while Code runs the full PromQL editor. Non-metrics datasets keep SQL with a default backfill so `/eval` never fires with an empty query
-- Blur on the PromQL editor commits the text without auto-running; execution is explicit (Run queries button, Shift+Enter, or a committed UI action like changing dataset/mode/filter)
-- Dataset picker sorts actively-ingesting datasets first, then alphabetically; in PromQL mode the list is filtered to `metrics`-type datasets
-- Plugin logo paths switched from remote GitHub URLs to the bundled `img/logo.svg` so logos render without network access
+- Refactor + Fix for making table headers [\#45](https://github.com/parseablehq/parseable-datasource/pull/45) ([balaji-jr](https://github.com/balaji-jr))
+- plugin sdk upgrade [\#43](https://github.com/parseablehq/parseable-datasource/pull/43) ([balaji-jr](https://github.com/balaji-jr))
+- use auth'd endpoint to test connection [\#42](https://github.com/parseablehq/parseable-datasource/pull/42) ([balaji-jr](https://github.com/balaji-jr))
 
-### Fixed
+## [v1.2.0](https://github.com/parseablehq/parseable-datasource/tree/v1.2.0) (2024-03-14)
 
-- PromQL backend requests now preserve the query string correctly (previously `url.JoinPath` URL-escaped `?`, causing 404s on `/prometheus/api/v1/query_range`)
-- Empty PromQL / SQL queries are rejected up front with a clear message instead of hitting the backend and returning a generic 500
-- Scoped label / value fetches use a bounded 6-hour lookback window so Parseable's `match[]` endpoints return promptly instead of hanging
-- High CPU during PromQL typing: metric detection moved inside a debounce and uses substring + char-code checks in the hot path
-- Removed the 2-second debounced auto-run on keystroke; queries no longer execute until the user commits them
+[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v1.1.0...v1.2.0)
 
-## 1.2.1 (2024-06-11)
+- Grafana 10 support [\#26](https://github.com/parseablehq/parseable-datasource/issues/26)
 
-### Fixed
+- address feedback from grafana [\#41](https://github.com/parseablehq/parseable-datasource/pull/41) ([nitisht](https://github.com/nitisht))
+- add binaries for backend [\#40](https://github.com/parseablehq/parseable-datasource/pull/40) ([nitisht](https://github.com/nitisht))
+- Update fix for edge case in query and add alerting feature [\#38](https://github.com/parseablehq/parseable-datasource/pull/38) ([nitisht](https://github.com/nitisht))
+- feat: add backend plugin to make alerting possible [\#37](https://github.com/parseablehq/parseable-datasource/pull/37) ([stanvanrooy](https://github.com/stanvanrooy))
+- fix: handle invalid initial value in variable formatter [\#36](https://github.com/parseablehq/parseable-datasource/pull/36) ([stanvanrooy](https://github.com/stanvanrooy))
+- Update CLA to use central sign directory [\#35](https://github.com/parseablehq/parseable-datasource/pull/35) ([nitisht](https://github.com/nitisht))
+- Add artefacts for release 1.2.0 [\#33](https://github.com/parseablehq/parseable-datasource/pull/33) ([nitisht](https://github.com/nitisht))
+- feat: handle query interpolation multi-valued variable [\#32](https://github.com/parseablehq/parseable-datasource/pull/32) ([stanvanrooy](https://github.com/stanvanrooy))
+- feat: add support for dynamic variables from parseable [\#31](https://github.com/parseablehq/parseable-datasource/pull/31) ([stanvanrooy](https://github.com/stanvanrooy))
 
-- Fixed table header generation from schema and query results (#45)
-- Improved datasource connection test reliability (#42)
+## [v1.1.0](https://github.com/parseablehq/parseable-datasource/tree/v1.1.0) (2023-06-18)
 
-## 1.2.0 (2024-03-14)
+[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/7c96bc8c5ab76f90e440876bbb3946b0e50f79a2...v1.1.0)
 
-### Added
+- Update plugin to support Grafana 10 [\#30](https://github.com/parseablehq/parseable-datasource/pull/30) ([nitisht](https://github.com/nitisht))
+- feat: show if error happens while querying [\#29](https://github.com/parseablehq/parseable-datasource/pull/29) ([stanvanrooy](https://github.com/stanvanrooy))
+- feat: make variables used in queries work [\#28](https://github.com/parseablehq/parseable-datasource/pull/28) ([stanvanrooy](https://github.com/stanvanrooy))
+- Add cla.yaml [\#27](https://github.com/parseablehq/parseable-datasource/pull/27) ([nitisht](https://github.com/nitisht))
+- Update docs [\#25](https://github.com/parseablehq/parseable-datasource/pull/25) ([nitisht](https://github.com/nitisht))
+- Optimise to avoid looping over the response [\#24](https://github.com/parseablehq/parseable-datasource/pull/24) ([nitisht](https://github.com/nitisht))
+- Fix type guess [\#23](https://github.com/parseablehq/parseable-datasource/pull/23) ([nitisht](https://github.com/nitisht))
+- Remove commented code and update min reqd version [\#22](https://github.com/parseablehq/parseable-datasource/pull/22) ([nitisht](https://github.com/nitisht))
+- Fix listing in dashboard panels [\#21](https://github.com/parseablehq/parseable-datasource/pull/21) ([nitisht](https://github.com/nitisht))
+- Fix plugin version [\#20](https://github.com/parseablehq/parseable-datasource/pull/20) ([nitisht](https://github.com/nitisht))
+- Use send\_null flag while sending queries [\#19](https://github.com/parseablehq/parseable-datasource/pull/19) ([nitisht](https://github.com/nitisht))
+- Add credits [\#18](https://github.com/parseablehq/parseable-datasource/pull/18) ([nitisht](https://github.com/nitisht))
+- Fix comments and sign the plugin [\#17](https://github.com/parseablehq/parseable-datasource/pull/17) ([nitisht](https://github.com/nitisht))
+- Fix plugin ID as per Grafana spec [\#16](https://github.com/parseablehq/parseable-datasource/pull/16) ([nitisht](https://github.com/nitisht))
+- Fix timestamp type parsing [\#15](https://github.com/parseablehq/parseable-datasource/pull/15) ([nitisht](https://github.com/nitisht))
+- Remove manual time type check [\#14](https://github.com/parseablehq/parseable-datasource/pull/14) ([nitisht](https://github.com/nitisht))
+- Add more details in the query editor [\#13](https://github.com/parseablehq/parseable-datasource/pull/13) ([nitisht](https://github.com/nitisht))
+- Add details about stream in the query editor [\#12](https://github.com/parseablehq/parseable-datasource/pull/12) ([nitisht](https://github.com/nitisht))
+- made UI changes to the query editor [\#11](https://github.com/parseablehq/parseable-datasource/pull/11) ([abhishek1305](https://github.com/abhishek1305))
+- Fix readme [\#10](https://github.com/parseablehq/parseable-datasource/pull/10) ([nitisht](https://github.com/nitisht))
+- Update the release [\#8](https://github.com/parseablehq/parseable-datasource/pull/8) ([nitisht](https://github.com/nitisht))
+- Add dashboard and screenshots [\#7](https://github.com/parseablehq/parseable-datasource/pull/7) ([nitisht](https://github.com/nitisht))
+- Create separate release dir and add shasum [\#6](https://github.com/parseablehq/parseable-datasource/pull/6) ([nitisht](https://github.com/nitisht))
+- Fix links in readme and add more info in plugin.json [\#5](https://github.com/parseablehq/parseable-datasource/pull/5) ([nitisht](https://github.com/nitisht))
+- Add CI and documentation [\#4](https://github.com/parseablehq/parseable-datasource/pull/4) ([nitisht](https://github.com/nitisht))
+- Prepare for plugin release [\#3](https://github.com/parseablehq/parseable-datasource/pull/3) ([nitisht](https://github.com/nitisht))
+- Use p\_timestamp as the field to be used as time [\#2](https://github.com/parseablehq/parseable-datasource/pull/2) ([nitisht](https://github.com/nitisht))
+- Cleanup tooltip and expand the size of query editor [\#1](https://github.com/parseablehq/parseable-datasource/pull/1) ([nitisht](https://github.com/nitisht))
 
-- Alerting support (#37, #38)
-- Dynamic template variables from Parseable (#31)
-- Multi-valued variable interpolation in queries (#32)
 
-### Fixed
 
-- Variable formatter handling for edge cases (#36)
-
-## 1.1.0 (2023-06-18)
-
-### Added
-
-- Log stream querying with SQL query editor
-- Dataset schema discovery and stats
-- Grafana template variable support
-- Pre-built log view dashboard
+\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
