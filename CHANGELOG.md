@@ -1,11 +1,12 @@
 # Changelog
 
-## [v2.0.0](https://github.com/parseablehq/parseable-datasource/tree/v2.0.0) (2026-05-18)
+## [v2.0.0](https://github.com/parseablehq/parseable-datasource/tree/v2.0.0) (2026-06-05)
 
 [Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v1.2.1...v2.0.0)
 
 - Undefined field handling [\#44](https://github.com/parseablehq/parseable-datasource/issues/44)
 
+- fix: replace hardcoded fontSize in typeBadge and spread bodySmall in sectionHeader [\#59](https://github.com/parseablehq/parseable-datasource/pull/59) ([praveen5959](https://github.com/praveen5959))
 - use go 1.26 for plugin build action [\#58](https://github.com/parseablehq/parseable-datasource/pull/58) ([nitisht](https://github.com/nitisht))
 - update packages to avoid vulnerabilties [\#57](https://github.com/parseablehq/parseable-datasource/pull/57) ([nitisht](https://github.com/nitisht))
 - release 2.0.0 [\#56](https://github.com/parseablehq/parseable-datasource/pull/56) ([nitisht](https://github.com/nitisht))
