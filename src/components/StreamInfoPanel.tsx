@@ -57,11 +57,15 @@ export const StreamInfoPanel: React.FC<StreamInfoPanelProps> = ({ fieldNames, fi
               </div>
               <div className={styles.statItem}>
                 <span className={styles.statLabel}>Ingested</span>
-                <span className={styles.statValue}>{stats.ingestion?.size ? sanitizeBytes(stats.ingestion.size) : '-'}</span>
+                <span className={styles.statValue}>
+                  {stats.ingestion?.size ? sanitizeBytes(stats.ingestion.size) : '-'}
+                </span>
               </div>
               <div className={styles.statItem}>
                 <span className={styles.statLabel}>Stored</span>
-                <span className={styles.statValue}>{stats.storage?.size ? sanitizeBytes(stats.storage.size) : '-'}</span>
+                <span className={styles.statValue}>
+                  {stats.storage?.size ? sanitizeBytes(stats.storage.size) : '-'}
+                </span>
               </div>
             </div>
           )}
@@ -124,11 +128,10 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: theme.spacing(0.5),
     padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
     cursor: 'pointer',
-    fontSize: theme.typography.bodySmall.fontSize,
+    ...theme.typography.bodySmall,
     fontWeight: theme.typography.fontWeightMedium,
     color: theme.colors.text.secondary,
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.5px',
     userSelect: 'none' as const,
     '&:hover': {
       background: theme.colors.action.hover,
@@ -165,7 +168,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
   typeBadge: css({
     fontFamily: theme.typography.fontFamilyMonospace,
-    fontSize: '10px',
+    fontSize: theme.typography.bodySmall.fontSize,
     fontWeight: theme.typography.fontWeightBold,
     width: 20,
     textAlign: 'center' as const,
