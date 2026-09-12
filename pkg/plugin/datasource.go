@@ -29,6 +29,7 @@ import (
 var (
 	_ backend.QueryDataHandler      = (*Datasource)(nil)
 	_ backend.CheckHealthHandler    = (*Datasource)(nil)
+	_ backend.CallResourceHandler   = (*Datasource)(nil)
 	_ instancemgmt.InstanceDisposer = (*Datasource)(nil)
 )
 
@@ -67,6 +68,65 @@ type Datasource struct {
 
 func (d *Datasource) Dispose() {
 	d.httpClient.CloseIdleConnections()
+}
+
+// CallResource proxies UI support requests through the same SDK HTTP client
+// used by queries and health checks. The SDK applies PDC's secure SOCKS
+// transport when enableSecureSocksProxy is set on the data source instance.
+func (d *Datasource) CallResource(
+	ctx context.Context,
+	req *backend.CallResourceRequest,
+	sender backend.CallResourceResponseSender,
+) error {
+	if strings.Trim(req.Path, "/") != "proxy" {
+		return sender.Send(&backend.CallResourceResponse{Status: http.StatusNotFound})
+	}
+
+	resourceURL, err := url2.Parse(req.URL)
+	if err != nil {
+		return sender.Send(&backend.CallResourceResponse{Status: http.StatusBadRequest})
+	}
+	target := resourceURL.Query().Get("target")
+	targetURL, err := url2.Parse(target)
+	if err != nil || targetURL.IsAbs() || targetURL.Host != "" || !strings.HasPrefix(targetURL.Path, "/") {
+		return sender.Send(&backend.CallResourceResponse{Status: http.StatusBadRequest})
+	}
+
+	baseURL, err := url2.Parse(d.settings.URL)
+	if err != nil {
+		return sender.Send(&backend.CallResourceResponse{Status: http.StatusInternalServerError})
+	}
+	baseURL.Path = strings.TrimRight(baseURL.Path, "/") + targetURL.Path
+	baseURL.RawQuery = targetURL.RawQuery
+
+	proxyReq, err := http.NewRequestWithContext(ctx, req.Method, baseURL.String(), bytes.NewReader(req.Body))
+	if err != nil {
+		return sender.Send(&backend.CallResourceResponse{Status: http.StatusBadRequest})
+	}
+	for _, header := range []string{"Accept", "Content-Type"} {
+		if value := req.GetHTTPHeader(header); value != "" {
+			proxyReq.Header.Set(header, value)
+		}
+	}
+
+	resp, err := d.httpClient.Do(proxyReq)
+	if err != nil {
+		return sender.Send(&backend.CallResourceResponse{
+			Status: http.StatusBadGateway,
+			Body:   []byte(err.Error()),
+		})
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return sender.Send(&backend.CallResourceResponse{Status: http.StatusBadGateway})
+	}
+	return sender.Send(&backend.CallResourceResponse{
+		Status:  resp.StatusCode,
+		Headers: resp.Header,
+		Body:    body,
+	})
 }
 
 func (d *Datasource) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
@@ -248,7 +308,12 @@ func getGrafanaFieldType(value interface{}) data.FieldType {
 func (d *Datasource) CheckHealth(ctx context.Context, _ *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
 	ctxLogger := log.DefaultLogger.FromContext(ctx)
 
-	r, err := http.NewRequestWithContext(ctx, http.MethodGet, d.settings.URL, nil)
+	healthURL, err := url2.JoinPath(d.settings.URL, "/api/v1/about")
+	if err != nil {
+		return newHealthCheckErrorf("could not construct health check URL"), nil
+	}
+
+	r, err := http.NewRequestWithContext(ctx, http.MethodGet, healthURL, nil)
 	if err != nil {
 		return newHealthCheckErrorf("could not create request"), nil
 	}

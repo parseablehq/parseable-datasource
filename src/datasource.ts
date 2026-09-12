@@ -2,7 +2,6 @@ import {
   getBackendSrv,
   getTemplateSrv,
   BackendSrvRequest,
-  FetchResponse,
   DataSourceWithBackend,
 } from '@grafana/runtime';
 import {
@@ -34,23 +33,26 @@ import {
 import { parseType } from './utils/fieldTypes';
 import { sanitizeSql } from './utils/sqlNormalize';
 import { recordPromqlQuery } from './utils/promqlHistory';
+import { buildPdcTarget } from './utils/pdc';
 
 export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptions> {
   url: string;
   withCredentials: boolean;
   headers: any;
   defaultEditorMode: QueryEditorMode;
+  private readonly pdcEnabled: boolean;
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
     this.url = instanceSettings.url === undefined ? '' : instanceSettings.url;
     this.withCredentials = instanceSettings.withCredentials !== undefined;
     this.defaultEditorMode = instanceSettings.jsonData?.defaultEditorMode ?? 'builder';
+    this.pdcEnabled = Boolean(instanceSettings.jsonData?.enableSecureSocksProxy);
   }
 
   async doRequest(query: MyQuery) {
     const routePath = '/api/v1';
     const result = await lastValueFrom(
-      getBackendSrv().fetch({
+      this.doFetch({
         method: 'GET',
         url: this.url + routePath + '/readiness',
         params: query,
@@ -779,6 +781,22 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
   }
 
   doFetch<T>(options: BackendSrvRequest) {
+    if (this.pdcEnabled) {
+      const target = buildPdcTarget(this.url, options.url, options.params as Record<string, unknown> | undefined);
+      const requestHeaders = {
+        ...options.headers,
+        ...this.getRequestHeaders(),
+      };
+
+      return getBackendSrv().fetch<T>({
+        ...options,
+        url: `/api/datasources/uid/${this.uid}/resources/proxy`,
+        params: { target },
+        headers: requestHeaders,
+        withCredentials: false,
+      });
+    }
+
     options.withCredentials = this.withCredentials;
     options.headers = this.headers;
 
@@ -903,41 +921,4 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
     }
   }
 
-  async testDatasource() {
-    const errorMessageBase =
-      'Parseable server is not reachable. Verify that your basic authentication credentials are accurate.';
-    try {
-      const response = await lastValueFrom(
-        this.doFetch({
-          url: this.url + '/api/prism/v1/home',
-          method: 'GET',
-        }).pipe(map((response) => response))
-      );
-
-      if (response.status === 200) {
-        return { status: 'success', message: 'Parseable server is reachable', title: 'Success' };
-      }
-
-      return {
-        message: response.status === 400 || !response.statusText ? errorMessageBase : response.statusText,
-        status: 'error',
-        title: 'Error',
-      };
-    } catch (err) {
-      if (typeof err === 'string') {
-        return {
-          status: 'error',
-          message: err,
-        };
-      }
-
-      let error = err as FetchResponse;
-      let message = error.statusText ?? errorMessageBase;
-      if (error.data?.error?.code !== undefined) {
-        message += `: ${error.data.error.code}. ${error.data.error.message}`;
-      }
-
-      return { status: 'error', message, title: 'Error' };
-    }
-  }
 }
