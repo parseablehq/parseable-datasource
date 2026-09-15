@@ -87,6 +87,8 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
   path?: string;
   username: string;
   defaultEditorMode?: QueryEditorMode;
+  /** Route backend requests through Grafana's Private Data Source Connect proxy. */
+  enableSecureSocksProxy?: boolean;
 }
 
 /**
@@ -100,7 +102,7 @@ export interface StreamPayloadConfig {
   placeholder?: string;
   name: string;
   label?: string;
-  type?: "input" | "select" | "multi-select" | "textarea";
+  type?: 'input' | 'select' | 'multi-select' | 'textarea';
   reloadMetric?: boolean;
   options?: Array<SelectableValue<string | number>>;
 }
@@ -196,7 +198,7 @@ export interface HomeResponse {
   datasets?: Dataset[];
 }
 
-export type QueryEditorMode = "code" | "builder" | "monitor" | "promql";
+export type QueryEditorMode = 'code' | 'builder' | 'monitor' | 'promql';
 
 /**
  * A single filter condition — matches Prism's FilterType structure.

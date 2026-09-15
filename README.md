@@ -11,6 +11,14 @@ This data source plugin allows you to query and visualize log data stored in Par
 
 Refer the Parseable Grafana documentation page: [https://www.parseable.com/docs/integrations/visualization/grafana](https://www.parseable.com/docs/integrations/visualization/grafana).
 
+## Private Data Source Connect (PDC)
+
+The plugin supports querying a Parseable server in a private network from Grafana Cloud using [Private Data Source Connect](https://grafana.com/docs/grafana-cloud/observe-and-act/connect-externally-hosted/private-data-source-connect/).
+
+After configuring a PDC network and agent in Grafana Cloud, edit the Parseable data source, use the private Parseable URL, enable **Secure SOCKS Proxy**, and select the appropriate PDC network. Save and test the data source to verify connectivity.
+
+PDC is a Grafana Cloud feature. The option is shown only when Grafana enables the `secureSocksDSProxyEnabled` feature toggle.
+
 ## Screenshots
 
 ![query editor](https://github.com/parseablehq/parseable-datasource/blob/main/src/img/query-editor.png?raw=true)
@@ -34,6 +42,7 @@ allow_loading_unsigned_plugins = parseable-parseable-datasource
 ```
 unzip parseable-datasource-*.*.*.zip -d ./parseable-parseable-datasource
 ```
+
 11. Restart the Grafana server to load the manually installed plugin.
 
 ## Dashboards
