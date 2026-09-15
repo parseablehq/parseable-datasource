@@ -7,7 +7,12 @@ export const supportsSecureSocksProxy = (featureToggles: FeatureToggles, grafana
   Boolean(featureToggles[secureSocksFeature]) && gte(grafanaVersion, '10.0.0');
 
 export const buildPdcTarget = (base: string, requestUrl: string, params?: Record<string, unknown>): string => {
-  const baseUrl = new URL(base);
+  // Grafana exposes a data source URL to the frontend as a relative proxy path
+  // (/api/datasources/proxy/uid/...), while tests and some runtimes may use an
+  // absolute URL. Resolve both forms against a non-routable local origin; only
+  // the path relative to the data source proxy is sent to the plugin backend.
+  const grafanaOrigin = 'http://grafana.local';
+  const baseUrl = new URL(base, grafanaOrigin);
   const targetUrl = new URL(requestUrl, baseUrl);
   if (targetUrl.origin !== baseUrl.origin) {
     throw new Error('PDC requests must target the configured Parseable server');

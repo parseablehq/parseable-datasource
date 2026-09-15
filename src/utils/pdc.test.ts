@@ -29,6 +29,15 @@ describe('buildPdcTarget', () => {
     ).toBe('/api/v1/labels?stream=logs&limit=5&match%5B%5D=one&match%5B%5D=two');
   });
 
+  it('supports Grafana relative data source proxy URLs', () => {
+    expect(
+      buildPdcTarget(
+        '/api/datasources/proxy/uid/parseable-uid',
+        '/api/datasources/proxy/uid/parseable-uid/api/prism/v1/home'
+      )
+    ).toBe('/api/prism/v1/home');
+  });
+
   it('rejects another origin or a path outside the configured base', () => {
     expect(() => buildPdcTarget('https://parseable.internal/base', 'https://example.com/api')).toThrow();
     expect(() => buildPdcTarget('https://parseable.internal/base', 'https://parseable.internal/other')).toThrow();
