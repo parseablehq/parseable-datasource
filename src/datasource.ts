@@ -62,10 +62,10 @@ export class DataSource extends DataSourceWithBackend<MyQuery, MyDataSourceOptio
   }
 
   extractStreamName = (sqlQuery: string): string | null => {
-    const tableRegex = /from\s+([\w\.]+)/i;
+    const tableRegex = /\bfrom\s+(?:"([^"]+)"|`([^`]+)`|([\w.]+))/i;
     const match = sqlQuery.match(tableRegex);
     if (match) {
-      return match[1];
+      return match[1] || match[2] || match[3];
     }
 
     return null;
