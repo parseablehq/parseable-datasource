@@ -235,8 +235,12 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   const filters = query.filters || [];
   const selectedColumns = query.selectedColumns || [];
 
+  // Queries saved before v2 may only contain queryText. The backend can run
+  // them by deriving the stream from SQL, but the editor needs a selected
+  // stream before it renders Builder or Code mode.
+  const queryStream = query.stream || datasource.extractStreamName(query.queryText || '') || undefined;
   const [selectedStream, setSelectedStream] = useState<SelectableValue<string>>(
-    query.stream ? { label: query.stream, value: query.stream } : ({} as SelectableValue<string>)
+    queryStream ? { label: queryStream, value: queryStream } : ({} as SelectableValue<string>)
   );
   const [schemaFields, setSchemaFields] = useState<SchemaFields[]>([]);
   const [stats, setStats] = useState<StreamStatsResponse>({});
@@ -257,6 +261,14 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   const [promLabels, setPromLabels] = useState<string[]>([]);
   const [promMetricNames, setPromMetricNames] = useState<string[]>([]);
   const [promMetadata, setPromMetadata] = useState<Record<string, { type?: string; help?: string; unit?: string }>>({});
+
+  // Grafana can replace a query target without remounting this component.
+  // Hydrate the editor when that replacement contains legacy SQL.
+  useEffect(() => {
+    if (queryStream && queryStream !== selectedStream?.value) {
+      setSelectedStream({ label: queryStream, value: queryStream });
+    }
+  }, [queryStream, selectedStream?.value]);
 
   // Build fieldTypeMap and fieldNames from schema (like Prism's setStreamSchema)
   const fieldTypeMap: FieldTypeMap = useMemo(() => buildFieldTypeMap(schemaFields), [schemaFields]);
