@@ -223,7 +223,14 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   // Run queries button. Explore already has Grafana's top-level Run button,
   // and Alerting uses its own preview / evaluate controls.
   const isDashboard = app === CoreApp.Dashboard || app === CoreApp.PanelEditor;
-  const rawEditorMode = query.editorMode || datasource.defaultEditorMode || 'builder';
+  const inferredStream = datasource.extractStreamName(query.queryText || '') || undefined;
+  const queryStream = query.stream || inferredStream;
+  // Legacy SQL has no structured Builder state. Opening it in Builder would
+  // show empty controls; the first edit would then rebuild and truncate SQL.
+  // Preserve explicit modes, but default unstructured legacy SQL to Code.
+  const isLegacySqlQuery = !query.stream && Boolean(inferredStream) && Boolean(query.queryText?.trim());
+  const rawEditorMode =
+    query.editorMode || (isLegacySqlQuery ? 'code' : datasource.defaultEditorMode || 'builder');
   // Auto-run disabled across all surfaces (Explore, Dashboard/Panel-edit,
   // Alerting). User explicitly triggers execution via Grafana's Run button
   // (Explore), the local Run queries button (Dashboard), or the preview /
@@ -238,7 +245,6 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   // Queries saved before v2 may only contain queryText. The backend can run
   // them by deriving the stream from SQL, but the editor needs a selected
   // stream before it renders Builder or Code mode.
-  const queryStream = query.stream || datasource.extractStreamName(query.queryText || '') || undefined;
   const [selectedStream, setSelectedStream] = useState<SelectableValue<string>>(
     queryStream ? { label: queryStream, value: queryStream } : ({} as SelectableValue<string>)
   );
@@ -263,12 +269,17 @@ export const QueryEditor: ComponentType<Props> = ({ datasource, onChange, onRunQ
   const [promMetadata, setPromMetadata] = useState<Record<string, { type?: string; help?: string; unit?: string }>>({});
 
   // Grafana can replace a query target without remounting this component.
-  // Hydrate the editor when that replacement contains legacy SQL.
+  // Hydrate both local editor state and the persisted query. PromQL execution
+  // reads query.stream directly, so keeping the inferred stream local would
+  // make a legacy SQL query fail after switching a metrics dataset to PromQL.
   useEffect(() => {
     if (queryStream && queryStream !== selectedStream?.value) {
       setSelectedStream({ label: queryStream, value: queryStream });
     }
-  }, [queryStream, selectedStream?.value]);
+    if (!query.stream && inferredStream) {
+      onChange({ ...query, stream: inferredStream });
+    }
+  }, [query, queryStream, inferredStream, selectedStream?.value, onChange]);
 
   // Build fieldTypeMap and fieldNames from schema (like Prism's setStreamSchema)
   const fieldTypeMap: FieldTypeMap = useMemo(() => buildFieldTypeMap(schemaFields), [schemaFields]);
