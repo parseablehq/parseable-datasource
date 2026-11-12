@@ -1,5 +1,12 @@
 # Changelog
 
+## [v2.1.2](https://github.com/parseablehq/parseable-datasource/tree/v2.1.2) (2026-11-12)
+
+[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.1.1...v2.1.2)
+
+- Upgrade Grafana SDK and JavaScript dependencies to patched versions.
+- Add Playwright end-to-end coverage for plugin loading and datasource health.
+
 ## [v2.1.1](https://github.com/parseablehq/parseable-datasource/tree/v2.1.1) (2026-11-12)
 
 [Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.1.0...v2.1.1)
