@@ -4,20 +4,16 @@
 
 [Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.1.1...v2.1.2)
 
-- Upgrade Grafana SDK and JavaScript dependencies to patched versions.
-- Add Playwright end-to-end coverage for plugin loading and datasource health.
+- chore: upgrade dependencies [\#64](https://github.com/parseablehq/parseable-datasource/pull/64) ([praveen5959](https://github.com/praveen5959))
 
 ## [v2.1.1](https://github.com/parseablehq/parseable-datasource/tree/v2.1.1) (2026-11-12)
 
-[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.1.0...v2.1.1)
+[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.0.0...v2.1.1)
 
-- Preserve and run legacy dashboard SQL queries that do not have stored stream metadata.
-
-## [v2.1.0](https://github.com/parseablehq/parseable-datasource/tree/v2.1.0) (2026-09-12)
-
-[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.0.0...v2.1.0)
-
-- Add Grafana Cloud Private Data Source Connect (PDC) support.
+- fix: use Node 24 for plugin release signing [\#63](https://github.com/parseablehq/parseable-datasource/pull/63) ([praveen5959](https://github.com/praveen5959))
+- chore: prepare v2.1.1 release [\#62](https://github.com/parseablehq/parseable-datasource/pull/62) ([praveen5959](https://github.com/praveen5959))
+- fix: support legacy query editor stream from SQL [\#61](https://github.com/parseablehq/parseable-datasource/pull/61) ([praveen5959](https://github.com/praveen5959))
+- feat: add PDC proxy support [\#60](https://github.com/parseablehq/parseable-datasource/pull/60) ([praveen5959](https://github.com/praveen5959))
 
 ## [v2.0.0](https://github.com/parseablehq/parseable-datasource/tree/v2.0.0) (2026-06-05)
 
@@ -31,10 +27,10 @@
 - release 2.0.0 [\#56](https://github.com/parseablehq/parseable-datasource/pull/56) ([nitisht](https://github.com/nitisht))
 - chore: upgrade deps + fix Grafana plugin validation issues [\#55](https://github.com/parseablehq/parseable-datasource/pull/55) ([praveen5959](https://github.com/praveen5959))
 - prepare for release 2.0.0 [\#54](https://github.com/parseablehq/parseable-datasource/pull/54) ([nitisht](https://github.com/nitisht))
-- feat: paginated value suggestions via dataset_stats with top-5 + show more [\#53](https://github.com/parseablehq/parseable-datasource/pull/53) ([praveen5959](https://github.com/praveen5959))
+- feat: paginated value suggestions via dataset\_stats with top-5 + show more [\#53](https://github.com/parseablehq/parseable-datasource/pull/53) ([praveen5959](https://github.com/praveen5959))
 - Prom ql builder [\#52](https://github.com/parseablehq/parseable-datasource/pull/52) ([praveen5959](https://github.com/praveen5959))
-- feat: PromQL-first with full Code-mode feature parity [\#51](https://github.com/parseablehq/parseable-datasource/pull/51) ([praveen5959](https://github.com/praveen5959))
-- Upgrade Grafana SDK to 12.x, modernize build and CI [\#50](https://github.com/parseablehq/parseable-datasource/pull/50) ([praveen5959](https://github.com/praveen5959))
+-   feat: PromQL-first with full Code-mode feature parity [\#51](https://github.com/parseablehq/parseable-datasource/pull/51) ([praveen5959](https://github.com/praveen5959))
+-  Upgrade Grafana SDK to 12.x, modernize build and CI [\#50](https://github.com/parseablehq/parseable-datasource/pull/50) ([praveen5959](https://github.com/praveen5959))
 - Update branding: replace logo and update terminology from logs to telemetry data [\#49](https://github.com/parseablehq/parseable-datasource/pull/49) ([Debanitrkl](https://github.com/Debanitrkl))
 - add Parseable Meta Dashboard [\#48](https://github.com/parseablehq/parseable-datasource/pull/48) ([nitisht](https://github.com/nitisht))
 - fixed plugin validation error: renamed root dir - from 'dist' to plugin-id [\#47](https://github.com/parseablehq/parseable-datasource/pull/47) ([balaji-jr](https://github.com/balaji-jr))
@@ -77,7 +73,7 @@
 - Remove commented code and update min reqd version [\#22](https://github.com/parseablehq/parseable-datasource/pull/22) ([nitisht](https://github.com/nitisht))
 - Fix listing in dashboard panels [\#21](https://github.com/parseablehq/parseable-datasource/pull/21) ([nitisht](https://github.com/nitisht))
 - Fix plugin version [\#20](https://github.com/parseablehq/parseable-datasource/pull/20) ([nitisht](https://github.com/nitisht))
-- Use send_null flag while sending queries [\#19](https://github.com/parseablehq/parseable-datasource/pull/19) ([nitisht](https://github.com/nitisht))
+- Use send\_null flag while sending queries [\#19](https://github.com/parseablehq/parseable-datasource/pull/19) ([nitisht](https://github.com/nitisht))
 - Add credits [\#18](https://github.com/parseablehq/parseable-datasource/pull/18) ([nitisht](https://github.com/nitisht))
 - Fix comments and sign the plugin [\#17](https://github.com/parseablehq/parseable-datasource/pull/17) ([nitisht](https://github.com/nitisht))
 - Fix plugin ID as per Grafana spec [\#16](https://github.com/parseablehq/parseable-datasource/pull/16) ([nitisht](https://github.com/nitisht))
@@ -93,7 +89,9 @@
 - Fix links in readme and add more info in plugin.json [\#5](https://github.com/parseablehq/parseable-datasource/pull/5) ([nitisht](https://github.com/nitisht))
 - Add CI and documentation [\#4](https://github.com/parseablehq/parseable-datasource/pull/4) ([nitisht](https://github.com/nitisht))
 - Prepare for plugin release [\#3](https://github.com/parseablehq/parseable-datasource/pull/3) ([nitisht](https://github.com/nitisht))
-- Use p_timestamp as the field to be used as time [\#2](https://github.com/parseablehq/parseable-datasource/pull/2) ([nitisht](https://github.com/nitisht))
+- Use p\_timestamp as the field to be used as time [\#2](https://github.com/parseablehq/parseable-datasource/pull/2) ([nitisht](https://github.com/nitisht))
 - Cleanup tooltip and expand the size of query editor [\#1](https://github.com/parseablehq/parseable-datasource/pull/1) ([nitisht](https://github.com/nitisht))
 
-\* _This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)_
+
+
+\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
