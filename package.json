@@ -1,6 +1,6 @@
 {
   "name": "parseable",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Parseable is a purpose built observability datalake. This plugin allows you to visualize data in Parseable, via Grafana.",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",

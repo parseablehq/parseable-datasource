@@ -1,5 +1,11 @@
 # Changelog
 
+## [v2.1.1](https://github.com/parseablehq/parseable-datasource/tree/v2.1.1) (2026-11-12)
+
+[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.1.0...v2.1.1)
+
+- Preserve and run legacy dashboard SQL queries that do not have stored stream metadata.
+
 ## [v2.1.0](https://github.com/parseablehq/parseable-datasource/tree/v2.1.0) (2026-09-12)
 
 [Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.0.0...v2.1.0)
