@@ -5,7 +5,7 @@ FROM grafana/${grafana_image}:${grafana_version}
 
 ARG development=true
 
-ARG GO_VERSION=1.21.6
+ARG GO_VERSION=1.26.11
 ARG GO_ARCH=amd64
 
 ENV DEV "${development}"
@@ -29,11 +29,11 @@ USER root
 # Installing supervisor and inotify-tools
 RUN if [ "${development}" = "true" ]; then \
     if grep -i -q alpine /etc/issue; then \
-        apk add supervisor inotify-tools git curl; \
+        apk add bash supervisor inotify-tools git curl; \
     elif grep -i -q ubuntu /etc/issue; then \
       DEBIAN_FRONTEND=noninteractive && \
       apt-get update && \
-      apt-get install -y supervisor inotify-tools git && \
+      apt-get install -y bash supervisor inotify-tools git && \
       rm -rf /var/lib/apt/lists/*; \
     else \
       echo 'ERROR: Unsupported base image' && /bin/false; \
