@@ -1,5 +1,11 @@
 # Changelog
 
+## [v2.1.3](https://github.com/parseablehq/parseable-datasource/tree/v2.1.3) (2026-11-16)
+
+[Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.1.2...v2.1.3)
+
+- fix: update `golang.org/x/net` to address GO-2026-6860 and GO-2026-6866
+
 ## [v2.1.2](https://github.com/parseablehq/parseable-datasource/tree/v2.1.2) (2026-11-12)
 
 [Full Changelog](https://github.com/parseablehq/parseable-datasource/compare/v2.1.1...v2.1.2)
